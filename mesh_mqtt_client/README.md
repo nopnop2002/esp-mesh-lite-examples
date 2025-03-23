@@ -65,6 +65,9 @@ Specifies the username and password if the server requires a password when conne
 
 # How to use
 Run mosquitto_sub on the host side.
+MQTT topic has the following syntax:
+```/topic/mesh/{mesh_layer}```
+
 ```
 $ sudo apt install moreutils
 $ BROKER="broker.emqx.io"
