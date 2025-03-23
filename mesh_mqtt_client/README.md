@@ -14,12 +14,12 @@ idf.py flash
 ![Image](https://github.com/user-attachments/assets/28ee4b1b-541a-4bc0-9d20-4c70e0e60452)
 ![Image](https://github.com/user-attachments/assets/99635150-9cdc-4dc9-9b2f-bf0659a164f8)
 
-## WiFi Setting   
-Set the information of your access point.
+## WiFi Setting
+Set the information of your access point.   
 ![Image](https://github.com/user-attachments/assets/9c68c775-4970-4a47-b15a-2fb96521060a)
 
-## Broker Setting   
-Set the information of your MQTT broker.
+## Broker Setting
+Set the information of your MQTT broker.   
 ![Image](https://github.com/user-attachments/assets/11906003-7812-4913-af2e-ace46d0e5241)
 
 - Using TCP Port.   
