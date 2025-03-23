@@ -64,8 +64,8 @@ Specifies the username and password if the server requires a password when conne
 ![Image](https://github.com/user-attachments/assets/63244a41-4805-457c-9dd1-9f36c95ad617)
 
 # How to use
-Run mosquitto_sub on the host side.
-MQTT topic has the following syntax:
+Run mosquitto_sub on the host side.   
+MQTT topic has the following syntax:   
 ```/topic/mesh/{mesh_layer}```
 
 ```
