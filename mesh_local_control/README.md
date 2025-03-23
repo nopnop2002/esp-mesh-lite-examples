@@ -13,6 +13,8 @@ idf.py flash
 
 
 # How to use
+This is a log of communication with two ESP32s.   
+It shows their respective MAC addresses and MESH layers.   
 ```
 $ python3 tcp-server-threading.py
 port=8070
