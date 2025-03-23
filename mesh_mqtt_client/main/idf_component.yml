@@ -1,0 +1,9 @@
+dependencies:
+  espressif/mesh_lite:
+    version: "^1.0.1"
+    rules:
+      - if: "idf_version >=5.0"
+  espressif/mdns:
+    version: "^1.0.3"
+    rules:
+      - if: "idf_version >=5.0"
