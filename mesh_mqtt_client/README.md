@@ -23,6 +23,7 @@ Set the information of your MQTT broker.
 ![Image](https://github.com/user-attachments/assets/11906003-7812-4913-af2e-ace46d0e5241)
 
 ### Select transport   
+The project supports the following transports:   
 - Using TCP Port.   
  TCP Port uses the MQTT protocol.   
 
