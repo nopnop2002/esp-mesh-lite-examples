@@ -2,7 +2,8 @@
 esp-mesh-lite is available [here](https://github.com/espressif/esp-mesh-lite).   
 You can create a wide-area mesh network.   
 The official repository comes with some example code.   
-This repository contains sample code for esp-mesh-lite that is not in the official repository.   
+The official examples are very helpful when creating an application for esp-mesh-lite.   
+This repository contains example code for esp-mesh-lite that is not in the official repository.   
 
 # Software requirements
 ESP-IDF V5.0 or later.   
