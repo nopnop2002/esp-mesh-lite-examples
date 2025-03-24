@@ -17,7 +17,7 @@ Set the information of your access point and your WebSocket server.
 
 # How to use
 Run ws-server.py on the host side.   
-This script accepts requests from multiple MAC addresses.   
+This script accepts requests from multiple clients.   
 However, note that requests from esp-mesh-lite come from a single IP address.   
 ```
 $ python3 ws-server.py
