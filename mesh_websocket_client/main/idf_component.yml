@@ -1,0 +1,10 @@
+dependencies:
+  espressif/mesh_lite:
+    version: "^1.0.1"
+    rules:
+      - if: "idf_version >=5.0"
+  espressif/esp_websocket_client:
+    version: "^1.0.0"
+    rules:
+      - if: "idf_version >=5.0"
+

@@ -16,3 +16,7 @@ SNTP client using esp-mesh-lite.
 
 # mesh_http_client
 HTTP client using esp-mesh-lite.   
+
+# mesh_websocket_client
+WebSocket client using esp-mesh-lite.   
+
