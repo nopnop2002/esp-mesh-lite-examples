@@ -8,5 +8,8 @@ This repository is example code for esp-mesh-lite.
 ESP-IDF V5.0 or later.   
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
-## mesh_mqtt_client
+# mesh_mqtt_client
 MQTT client using esp-mesh-lite.   
+
+# mesh_sntp_client
+SNTP client using esp-mesh-lite.   

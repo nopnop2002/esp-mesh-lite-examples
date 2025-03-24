@@ -1,0 +1,36 @@
+menu "Example Configuration"
+
+	menu "WiFi Setting"
+
+		config ROUTER_SSID
+			string "Router SSID"
+				default "myssid"
+				help
+					SSID (network name) for the example to connect to.
+
+		config ROUTER_PASSWORD
+			string "Router password"
+				default "mypassword"
+				help
+					WiFi password (WPA or WPA2) for the example to use.
+
+	endmenu
+
+	menu "NTP Setting"
+
+		config NTP_SERVER
+			string "Hostname for NTP Server"
+			default "pool.ntp.org"
+			help
+				Hostname for NTP Server.
+
+		config LOCAL_TIMEZONE
+			int "Your local timezone"
+			range -23 23
+			default 0
+			help
+				Your local timezone.  When it is 0, Greenwich Mean Time.
+
+	endmenu
+
+endmenu
