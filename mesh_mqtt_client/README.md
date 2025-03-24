@@ -53,7 +53,7 @@ You can specify your MQTT broker in one of the following ways:
 - IP address   
  ```192.168.10.20```   
 - mDNS host name   
- ```mqtt-broker.local```   
+ ```Not supported```   
 - Fully Qualified Domain Name   
  ```broker.emqx.io```
 
