@@ -1,4 +1,8 @@
 # Override some defaults in mesh application project.
+#
+# ESP-MQTT Configurations
+#
+CONFIG_MQTT_PROTOCOL_5=y
 
 #
 # FreeRTOS
