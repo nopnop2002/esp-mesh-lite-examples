@@ -1,5 +1,5 @@
-/*
-	MQTT publish  Example
+/*	
+	MQTT subscribe Example
 
 	This example code is in the Public Domain (or CC0 licensed, at your option.)
 
@@ -15,16 +15,14 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_log.h"
-#include "esp_mac.h" // MACSTR
+#include "esp_mac.h"
 #include "esp_wifi.h" // esp_wifi_get_mac
 
 #include "esp_mesh_lite.h"
 #include "mqtt_client.h"
+#include "mqtt.h"
 
-static const char *TAG = "PUB";
-
-EventGroupHandle_t mqtt_status_event_group;
-#define MQTT_CONNECTED_BIT BIT2
+static const char *TAG = "SUB";
 
 extern const uint8_t root_cert_pem_start[] asm("_binary_root_cert_pem_start");
 extern const uint8_t root_cert_pem_end[] asm("_binary_root_cert_pem_end");
@@ -38,16 +36,18 @@ static void log_error_if_nonzero(const char *message, int error_code)
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-	ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
 	esp_mqtt_event_handle_t event = event_data;
-	switch ((esp_mqtt_event_id_t)event_id) {
+	MQTT_t *mqttBuf = handler_args;
+	ESP_LOGI(TAG, "taskHandle=0x%x", (unsigned int)mqttBuf->taskHandle);
+	mqttBuf->event_id = event->event_id;
+	switch (event->event_id) {
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-		xEventGroupSetBits(mqtt_status_event_group, MQTT_CONNECTED_BIT);
+		xTaskNotifyGive( mqttBuf->taskHandle );
 		break;
 	case MQTT_EVENT_DISCONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
-		xEventGroupClearBits(mqtt_status_event_group, MQTT_CONNECTED_BIT);
+		xTaskNotifyGive( mqttBuf->taskHandle );
 		break;
 	case MQTT_EVENT_SUBSCRIBED:
 		ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
@@ -56,12 +56,23 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
 		break;
 	case MQTT_EVENT_PUBLISHED:
-		ESP_LOGD(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+		ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
 		break;
 	case MQTT_EVENT_DATA:
 		ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-		printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-		printf("DATA=%.*s\r\n", event->data_len, event->data);
+		ESP_LOGI(TAG, "TOPIC=[%.*s] DATA=[%.*s]\r", event->topic_len, event->topic, event->data_len, event->data);
+
+		mqttBuf->topic_len = event->topic_len;
+		for(int i=0;i<event->topic_len;i++) {
+			mqttBuf->topic[i] = event->topic[i];
+			mqttBuf->topic[i+1] = 0;
+		}
+		mqttBuf->data_len = event->data_len;
+		for(int i=0;i<event->data_len;i++) {
+			mqttBuf->data[i] = event->data[i];
+			mqttBuf->data[i+1] = 0;
+		}
+		xTaskNotifyGive( mqttBuf->taskHandle );
 		break;
 	case MQTT_EVENT_ERROR:
 		ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
@@ -72,6 +83,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 			ESP_LOGI(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
 
 		}
+		xTaskNotifyGive( mqttBuf->taskHandle );
 		break;
 	default:
 		ESP_LOGI(TAG, "Other event id:%d", event->event_id);
@@ -82,23 +94,18 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 esp_err_t query_mdns_host(const char * host_name, char *ip);
 void convert_mdns_host(char * from, char * to);
 
-void mqtt_pub(void *pvParameters)
+void mqtt_sub(void *pvParameters)
 {
-	ESP_LOGI(TAG, "Start MQTT_BROKER:%s", CONFIG_MQTT_BROKER);
-
-	// Create Event Group
-	mqtt_status_event_group = xEventGroupCreate();
-	configASSERT( mqtt_status_event_group );
-	xEventGroupClearBits(mqtt_status_event_group, MQTT_CONNECTED_BIT);
+	ESP_LOGI(TAG, "Start CONFIG_MQTT_BROKER=[%s]", CONFIG_MQTT_BROKER);
 
 	// Set client id from mac
 	uint8_t mac[8];
 	ESP_ERROR_CHECK(esp_base_mac_addr_get(mac));
 	for(int i=0;i<8;i++) {
-		ESP_LOGD(TAG, "mac[%d]=%x", i, mac[i]);
+		ESP_LOGI(TAG, "mac[%d]=%x", i, mac[i]);
 	}
 	char client_id[64];
-	sprintf(client_id, "pub-%02x%02x%02x%02x%02x%02x", mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+	sprintf(client_id, "esp32-%02x%02x%02x%02x%02x%02x", mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
 	ESP_LOGI(TAG, "client_id=[%s]", client_id);
 
 	// Resolve mDNS host name
@@ -148,38 +155,47 @@ void mqtt_pub(void *pvParameters)
 	mqtt_cfg.session.protocol_ver = MQTT_PROTOCOL_V_5;
 #endif
 
+	// Initialize user context
+	MQTT_t mqttBuf;
+	mqttBuf.taskHandle = xTaskGetCurrentTaskHandle();
+	ESP_LOGI(TAG, "taskHandle=0x%x", (unsigned int)mqttBuf.taskHandle);
+
 	// Start mqtt client
 	esp_mqtt_client_handle_t mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
-	esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+	esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, &mqttBuf);
 	esp_err_t ret = esp_mqtt_client_start(mqtt_client);
 	ESP_LOGI(TAG, "esp_mqtt_client_start ret=%d", ret);
-
-	// Wait for connection
-	ESP_LOGI(TAG, "Wait for connection to the MQTT broker");
-	xEventGroupWaitBits(mqtt_status_event_group, MQTT_CONNECTED_BIT, false, true, portMAX_DELAY);
-	ESP_LOGI(TAG, "Connected to MQTT Broker");
 
 	// Get station mac address
 	uint8_t sta_mac[6] = {0};
 	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
 
-	while(1) {
-		EventBits_t EventBits = xEventGroupGetBits(mqtt_status_event_group);
-		ESP_LOGD(TAG, "EventBits=0x%"PRIx32, EventBits);
-		if (EventBits & MQTT_CONNECTED_BIT) {
-			char topic[64];
-			char payload[64];
-			sprintf(topic, "/topic/mesh/%d", esp_mesh_lite_get_level());
-			sprintf(payload, "data from "MACSTR, MAC2STR(sta_mac));
-			int msg_id = esp_mqtt_client_publish(mqtt_client, topic, payload, 0, 1, 0);
-			ESP_LOGD(TAG, "sent publish successful, msg_id=%d", msg_id);
-		} else {
-			ESP_LOGW(TAG, "Disconnect to MQTT Broker. Skip to send");
-		}
-		vTaskDelay(1000);
-	}
+	while (1) {
+		ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
+		ESP_LOGI(TAG, "ulTaskNotifyTake event_id=%"PRIi32, mqttBuf.event_id);
 
-	// Stop connection
+		if (mqttBuf.event_id == MQTT_EVENT_CONNECTED) {
+			char topic[64];
+			strcpy(topic, "/topic/mesh/broadcast");
+			esp_mqtt_client_subscribe(mqtt_client, topic, 0);
+			sprintf(topic, "/topic/mesh/%02x%02x%02x%02x%02x%02x", 
+				sta_mac[0], sta_mac[1], sta_mac[2], sta_mac[3], sta_mac[4], sta_mac[5]);
+			ESP_LOGI(TAG, "topic=[%s]", topic);
+			esp_mqtt_client_subscribe(mqtt_client, topic, 0);
+		} else if (mqttBuf.event_id == MQTT_EVENT_DISCONNECTED) {
+			break;
+		} else if (mqttBuf.event_id == MQTT_EVENT_DATA) {
+			ESP_LOGI(TAG, "-------------------------------------------------");
+			ESP_LOGI(TAG, "TOPIC=[%.*s]\r", mqttBuf.topic_len, mqttBuf.topic);
+			ESP_LOGI(TAG, "DATA=[%.*s]\r", mqttBuf.data_len, mqttBuf.data);
+			ESP_LOGI(TAG, "-------------------------------------------------");
+		} else if (mqttBuf.event_id == MQTT_EVENT_ERROR) {
+			//break;
+		}
+	} // end while
+
+	ESP_LOGI(TAG, "Task Delete");
 	esp_mqtt_client_stop(mqtt_client);
 	vTaskDelete(NULL);
+
 }

@@ -26,7 +26,8 @@
 
 static const char *TAG = "MAIN";
 
-void mqtt_pub(void *arg);
+void mqtt_pub(void *pvParameters);
+void mqtt_sub(void *pvParameters);
 
 /**
  * @brief Timed printing system information
@@ -64,6 +65,7 @@ static void ip_event_sta_got_ip_handler(void *arg, esp_event_base_t event_base,
 	if (!tcp_task) {
 		ESP_LOGI(TAG, "Start mqtt_pub task");
 		xTaskCreate(mqtt_pub, "mqtt_pub", 4 * 1024, NULL, 5, NULL);
+		xTaskCreate(mqtt_sub, "mqtt_sub", 4 * 1024, NULL, 5, NULL);
 		tcp_task = true;
 	}
 }
@@ -201,7 +203,6 @@ void app_main()
 	 */
 	ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_sta_got_ip_handler, NULL, NULL));
 
-	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS,
-									   true, NULL, print_system_info_timercb);
+	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS, true, NULL, print_system_info_timercb);
 	xTimerStart(timer, 0);
 }
