@@ -18,19 +18,13 @@ Set the information of your access point and your HTTP server.
 # How to use
 Run http-server.py on the host side.   
 This script accepts requests from multiple MAC addresses.   
-However, note that the response is to a single IP address.   
+However, note that requests from esp-mesh-lite come from a single IP address.   
 ```
 $ python3 http-server.py
 args.port=8080
-(766517) data from a4:cf:12:05:c6:34
-192.168.10.119 - - [24/Mar/2025 14:53:14] "POST / HTTP/1.1" 200 -
-(706694) data from 3c:71:bf:9d:bd:00
-192.168.10.119 - - [24/Mar/2025 14:53:14] "POST / HTTP/1.1" 200 -
-(767554) data from a4:cf:12:05:c6:34
-192.168.10.119 - - [24/Mar/2025 14:53:15] "POST / HTTP/1.1" 200 -
-(707748) data from 3c:71:bf:9d:bd:00
-192.168.10.119 - - [24/Mar/2025 14:53:15] "POST / HTTP/1.1" 200 -
-(768590) data from a4:cf:12:05:c6:34
-192.168.10.119 - - [24/Mar/2025 14:53:16] "POST / HTTP/1.1" 200 -
+message from ('192.168.10.119', 56976)=(822241) data from a4:cf:12:05:c6:34
+message from ('192.168.10.119', 55912)=(3867) data from 3c:71:bf:9d:bd:00
+message from ('192.168.10.119', 56977)=(823283) data from a4:cf:12:05:c6:34
+message from ('192.168.10.119', 55913)=(4926) data from 3c:71:bf:9d:bd:00
 ```
 

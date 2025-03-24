@@ -12,6 +12,7 @@ from urllib.parse import parse_qs
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
 	def do_POST(self):
+		#print(dir(self))
 		#parsed = urlparse(self.path)
 		#print("parsed={}".format(parsed))
 		#params = parse_qs(parsed.query)
@@ -20,7 +21,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 		#print("content_len={}".format(content_len))
 		req_body = self.rfile.read(content_len).decode("utf-8")
 		#print("req_body={}".format(req_body))
-		print("{}".format(req_body))
+		print("message from {}={}".format(self.client_address, req_body))
 
 		body = "OK"
 		self.send_response(200)
@@ -28,6 +29,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-length', len(body.encode()))
 		self.end_headers()
 		self.wfile.write(body.encode())
+
+	def log_message(self, format, *args):
+		return
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
