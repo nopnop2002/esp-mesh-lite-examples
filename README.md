@@ -13,3 +13,6 @@ MQTT client using esp-mesh-lite.
 
 # mesh_sntp_client
 SNTP client using esp-mesh-lite.   
+
+# mesh_http_client
+HTTP client using esp-mesh-lite.   

@@ -1,0 +1,27 @@
+menu "Example Configuration"
+
+	config ROUTER_SSID
+		string "Router SSID"
+			default "myssid"
+			help
+				SSID (network name) for the example to connect to.
+
+	config ROUTER_PASSWORD
+		string "Router password"
+			default "mypassword"
+			help
+				WiFi password (WPA or WPA2) for the example to use.
+
+	config SERVER_IP
+		string "Server IP address"
+		default "192.168.0.1"
+		help
+			Server IP address.
+
+	config SERVER_PORT
+		int "Server port"
+		default 8080
+		help
+			Server port.
+
+endmenu
