@@ -84,14 +84,14 @@ $ mosquitto_sub -h ${BROKER} -t ${TOPIC} -v | ts "%Y/%m/%d %H:%M:%S"
 2025/03/23 08:52:32 /topic/mesh/1 data from a4:cf:12:05:c6:34
 ```
 
-- Publish broadcast topic
+- Publish broadcast topic   
 	All nodes receive this message.
 	```
 	TOPIC="/topic/mesh/broadcast"
 	$ mosquitto_pub -h ${BROKER} -t ${TOPIC} -m "hogehoge"
 	```
 
-- Publish unicast topic
+- Publish unicast topic   
 	Only nodes with a matching MAC address will receive this message.
 	```
 	#TOPIC="/topic/mesh/{mac address}
