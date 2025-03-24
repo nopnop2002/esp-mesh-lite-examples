@@ -20,3 +20,7 @@ HTTP client using esp-mesh-lite.
 # mesh_websocket_client
 WebSocket client using esp-mesh-lite.   
 
+# mesh_local_control
+esp-mesh-lite comes with [this](https://github.com/espressif/esp-mesh-lite/tree/master/examples/mesh_local_control) TCP client example.   
+This is a TCP server script that can communicate with multiple ESP32s.   
+You can try esp-mesh-lite now.   
