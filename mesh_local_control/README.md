@@ -3,8 +3,16 @@ esp-mesh-lite comes with [this](https://github.com/espressif/esp-mesh-lite/tree/
 This is a TCP server script that can communicate with multiple ESP32s.   
 You can try esp-mesh-lite now.   
 
-# Installation
+# Software requirements
+ESP-IDF V5.0 or later.   
+ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
+# Hardware requirements
+- At least 2 x ESP32 development boards
+- 1 x router that supports 2.4G
+- 1 x host computer connected to the network and capable of running Python3
+
+# Installation
 ```
 git clone https://github.com/espressif/esp-mesh-lite
 cd esp-mesh-lite/examples/mesh_local_control
