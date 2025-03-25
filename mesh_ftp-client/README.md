@@ -2,6 +2,14 @@
 FTP client for esp-mesh-lite.   
 I used [this](https://github.com/nopnop2002/esp-idf-ftpClient) component.   
 
+# Software requirements
+ESP-IDF V5.0 or later.   
+ESP-IDF V4.4 release branch reached EOL in July 2024.   
+
+# Hardware requirements
+- At least 2 x ESP32 development boards
+- 1 x router that supports 2.4G
+
 # Installation
 
 ```
