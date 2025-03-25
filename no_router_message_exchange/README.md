@@ -41,7 +41,7 @@ I (2951217) no_router: Child mac: 24:0a:c4:c5:46:fc
 
 
 # Leaf node logging
-The leaf node notifies the root node of the message sequence number, layer, and the MAC address of the leaf node.
+The leaf node notifies the root node of the layer, message sequence number, and the MAC address of the leaf node.
 ```
 I (311192) no_router: System information, channel: 11, layer: 2, self mac: 24:0a:c4:c5:46:fc, parent bssid: a4:cf:12:05:c6:35, parent rssi: -79, free heap: 205568
 1: 1, a4:cf:12:05:c6:34, 0.0.0.0
@@ -79,7 +79,7 @@ typedef struct esp_mesh_lite_msg_action {
 } esp_mesh_lite_msg_action_t;
 ```
 
-This project defines the following callbacks:   
+This project defines the following receive callbacks:   
 A message of type "broadcast" indicates that it will be notified to broadcast_process().   
 A message of type "report_info_to_root" indicates that it will be notified to report_info_to_root_process().   
 
