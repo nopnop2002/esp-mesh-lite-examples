@@ -41,7 +41,7 @@ I (2951217) no_router: Child mac: 24:0a:c4:c5:46:fc
 
 
 # Leaf node logging
-The leaf node notifies the root node of the message sequence number, layer, and the leaf node's MAC address.
+The leaf node notifies the root node of the message sequence number, layer, and the MAC address of the leaf node.
 ```
 I (311192) no_router: System information, channel: 11, layer: 2, self mac: 24:0a:c4:c5:46:fc, parent bssid: a4:cf:12:05:c6:35, parent rssi: -79, free heap: 205568
 1: 1, a4:cf:12:05:c6:34, 0.0.0.0
