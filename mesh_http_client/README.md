@@ -1,8 +1,16 @@
 # mesh_http_client
 HTTP client for esp-mesh-lite.
 
-# Installation
+# Software requirements
+ESP-IDF V5.0 or later.   
+ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
+# Hardware requirements
+- At least 2 x ESP32 development boards
+- 1 x router that supports 2.4G
+- 1 x host computer running python
+
+# Installation
 ```
 git clone https://github.com/nopnop2002/esp-mesh-lite-examples
 cd esp-mesh-lite-examples/mesh_http_client
