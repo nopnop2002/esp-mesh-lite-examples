@@ -79,5 +79,28 @@ typedef struct esp_mesh_lite_msg_action {
 } esp_mesh_lite_msg_action_t;
 ```
 
+This project defines the following callbacks:   
+A message of type "broadcast" indicates that it will be notified to broadcast_process().   
+A message of type "report_info_to_root" indicates that it will be notified to report_info_to_root_process().   
+
+```
+static const esp_mesh_lite_msg_action_t node_report_action[] = {
+    {"broadcast", NULL, broadcast_process},
+
+    /* Report information to the sibling node */
+    {"report_info_to_sibling", NULL, report_info_to_sibling_process},
+
+    /* Report information to the root node */
+    {"report_info_to_root", "report_info_to_root_ack", report_info_to_root_process},
+    {"report_info_to_root_ack", NULL, report_info_to_root_ack_process},
+
+    /* Report information to the root node */
+    {"report_info_to_parent", "report_info_to_parent_ack", report_info_to_parent_process},
+    {"report_info_to_parent_ack", NULL, report_info_to_parent_ack_process},
+
+    {NULL, NULL, NULL} /* Must be NULL terminated */
+};
+```
+
 For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite.h).   
 
