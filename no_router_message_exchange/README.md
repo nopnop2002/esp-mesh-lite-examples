@@ -9,7 +9,7 @@ ESP-IDF V5.0 or later.
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
 # Hardware requirements
-- At least 2 x ESP32 development boards
+- At least 2 x ESP32 development boards   
 	No WiFi router is required.
 
 # Installation
@@ -21,7 +21,7 @@ idf.py flash
 ```
 
 # Configuration   
-One device must be configured as the root node and the other devices as non-root nodes.   
+One device must be configured as the root node and the other devices as leaf nodes.   
 ![Image](https://github.com/user-attachments/assets/28ee4b1b-541a-4bc0-9d20-4c70e0e60452)
 ![Image](https://github.com/user-attachments/assets/8fe1e1f7-25ef-478f-995f-4edbc4877df3)
 
@@ -54,10 +54,10 @@ I (311192) no_router: System information, channel: 11, layer: 2, self mac: 24:0a
 
 # Reference
 To communicate within a node, use one of the following functions:
-- esp_mesh_lite_send_msg
+- esp_mesh_lite_send_msg   
 	https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h#L1032
 
-- esp_mesh_lite_try_sending_msg
+- esp_mesh_lite_try_sending_msg   
 	https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h#L1049
 
 
