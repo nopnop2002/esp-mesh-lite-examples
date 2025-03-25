@@ -1,0 +1,47 @@
+menu "Example Configuration"
+
+	menu "WiFi Setting"
+
+		config ROUTER_SSID
+			string "Router SSID"
+				default "myssid"
+				help
+					SSID (network name) for the example to connect to.
+
+		config ROUTER_PASSWORD
+			string "Router password"
+				default "mypassword"
+				help
+					WiFi password (WPA or WPA2) for the example to use.
+
+	endmenu
+
+	menu "FTP Server Setting"
+
+		config FTP_SERVER
+			string "FTP Server Host"
+			default "ftp.dlptest.com"
+			help
+				FTP Server host name or ip address to connect.
+
+		config FTP_PORT
+			int "FTP Server Port"
+			default 21
+			help
+				FTP Server port number to connect.
+
+		config FTP_USER
+			string "FTP User Name"
+			default "dlpuser"
+			help
+				FTP User name to use.
+
+		config FTP_PASSWORD
+			string "FTP Password"
+			default "rNrKYTX9g7z3RgJRmxWuGHbeu"
+			help
+				FTP Password to use.
+
+	endmenu
+
+endmenu

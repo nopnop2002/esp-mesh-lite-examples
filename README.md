@@ -21,6 +21,9 @@ HTTP client using esp-mesh-lite.
 # mesh_websocket_client
 WebSocket client using esp-mesh-lite.   
 
+# mesh_ftp_client
+FTP client using esp-mesh-lite.   
+
 # mesh_local_control
 esp-mesh-lite comes with [this](https://github.com/espressif/esp-mesh-lite/tree/master/examples/mesh_local_control) TCP client example.   
 However, it does not include a server-side script.   
