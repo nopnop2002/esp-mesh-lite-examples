@@ -1,5 +1,6 @@
 # mesh_ftp_client
-FTP client for esp-mesh-lite.
+FTP client for esp-mesh-lite.   
+I used [this](https://github.com/nopnop2002/esp-idf-ftpClient) component.   
 
 # Installation
 
