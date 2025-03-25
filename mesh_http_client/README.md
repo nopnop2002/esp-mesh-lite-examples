@@ -8,7 +8,7 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 # Hardware requirements
 - At least 2 x ESP32 development boards
 - 1 x router that supports 2.4G
-- 1 x host computer running python3
+- 1 x host computer connected to the network and capable of running Python3
 
 # Installation
 ```
