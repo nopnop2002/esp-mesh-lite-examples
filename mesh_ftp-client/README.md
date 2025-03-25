@@ -27,7 +27,7 @@ The files will be stored for 10 minutes before being deleted.
 ![Image](https://github.com/user-attachments/assets/54e845bf-9c3e-4db6-8fa6-7e17cdcaac79)
 
 # Root node
-The root node puts the file on the FTP server.
+The root node stores the file on the FTP server.
 ```
 I (1442286) CLIENT: System information, channel: 11, layer: 1, self mac: a4:cf:12:05:c6:34, parent bssid: f8:b7:97:36:de:52, parent rssi: -58, free heap: 165564
 I (1443513) CLIENT: ftpClientPut /root/mesh-lite.txt ---> mesh-lite.txt
