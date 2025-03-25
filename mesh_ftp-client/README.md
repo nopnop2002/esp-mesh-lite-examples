@@ -48,3 +48,9 @@ I (65430) CLIENT: Child mac: 3c:71:bf:9d:bd:00
 I (65435) CLIENT: Child mac: 24:0a:c4:c5:46:fc
 I (65441) CLIENT: -----------------------------------------------
 ```
+
+This warning appears when a leaf node retrieves a file while the root node is storing the file.   
+```
+I (1973647) CLIENT: ftpClientGet /root/mesh-lite.txt <--- mesh-lite.txt
+W (1973681) CLIENT: Failed to open file for reading
+```
