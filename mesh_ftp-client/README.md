@@ -11,7 +11,6 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 - 1 x router that supports 2.4G
 
 # Installation
-
 ```
 git clone https://github.com/nopnop2002/esp-mesh-lite-examples
 cd esp-mesh-lite-examples/mesh_ftp_client
