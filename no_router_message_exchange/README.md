@@ -102,5 +102,5 @@ static const esp_mesh_lite_msg_action_t node_report_action[] = {
 };
 ```
 
-For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite.h).   
+For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h).   
 
