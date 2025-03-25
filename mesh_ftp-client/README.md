@@ -34,7 +34,7 @@ I (1443513) CLIENT: ftpClientPut /root/mesh-lite.txt ---> mesh-lite.txt
 ```
 
 # Leaf node
-The leaf node gets the file from the FTP server.
+The leaf node retrieves the file from the FTP server.
 ```
 I (65399) CLIENT: ftpClientGet /root/mesh-lite.txt <--- mesh-lite.txt
 I (65401) CLIENT: -----------------------------------------------
