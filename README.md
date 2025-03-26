@@ -29,3 +29,6 @@ esp-mesh-lite comes with [this](https://github.com/espressif/esp-mesh-lite/tree/
 However, it does not include a server-side script.   
 This is a TCP server script that can communicate with multiple ESP32s.   
 You can try esp-mesh-lite now.   
+
+# no_router_message_exchange
+An example of a routerless mesh network that exchanges data between nodes.
