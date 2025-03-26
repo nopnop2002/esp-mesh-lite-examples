@@ -9,7 +9,7 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 - At least 2 x ESP32 development boards
 - 1 x router that supports 2.4G
 - 1 x host computer connected to the network and running MQTT broker (optional)   
-	You can use a public MQTT broker.   
+	You can use a public MQTT broker, such as broker.emqx.io.   
 
 # Installation
 ```
