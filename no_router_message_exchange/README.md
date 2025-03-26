@@ -53,7 +53,7 @@ I (311192) no_router: System information, channel: 11, layer: 2, self mac: 24:0a
 
 
 # Reference
-To communicate within a node, use one of the following functions:
+To communicate between nodes, use one of the following functions:
 - esp_mesh_lite_send_msg   
 	https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h#L1032
 
