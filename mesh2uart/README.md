@@ -2,25 +2,25 @@
 This is esp-mesh-lite and UART/USB gateway application.
 
 - Network configuration using a WiFi router   
-Connect to the host computer via a WiFi router.   
-```
-+-------------+             +-------------+          +-------------+          +-------------+
-|Host Computer|<--Network-->| WiFi router |<--WiFi-->|  Root Node  |<--Mesh-->|  Leaf node  |
-+-------------+             +-------------+          +-------------+          +-------------+
-```
+	Connect to the host computer via a WiFi router.   
+	```
+	+-------------+             +-------------+          +-------------+          +-------------+
+	|Host Computer|<--Network-->| WiFi router |<--WiFi-->|  Root Node  |<--Mesh-->|  Leaf node  |
+	+-------------+             +-------------+          +-------------+          +-------------+
+	```
 
 
 - Network configuration for this project   
-USB connection is only possible with ESP32S2/S3.   
-```
-+-------------+         +-----------------+          +-------------+          +-------------+
-|Host Computer|<------->|USB-TTL CONVERTER|<--UART-->|  Root Node  |<--Mesh-->|  Leaf node  |
-+-------------+         +-----------------+          +-------------+          +-------------+
+	USB connection is only possible with ESP32S2/S3.   
+	```
+	+-------------+         +-----------------+          +-------------+          +-------------+
+	|Host Computer|<------->|USB-TTL CONVERTER|<--UART-->|  Root Node  |<--Mesh-->|  Leaf node  |
+	+-------------+         +-----------------+          +-------------+          +-------------+
 
-+-------------+                                      +-------------+          +-------------+
-|Host Computer|<----------------USB----------------->|  Root Node  |<--Mesh-->|  Leaf node  |
-+-------------+                                      +-------------+          +-------------+
-```
+	+-------------+                                      +-------------+          +-------------+
+	|Host Computer|<----------------USB----------------->|  Root Node  |<--Mesh-->|  Leaf node  |
+	+-------------+                                      +-------------+          +-------------+
+	```
 
 
 # Software requirements
