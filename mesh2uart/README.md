@@ -69,7 +69,7 @@ One device must be configured as the root node and the other devices as leaf nod
 # Using Windows Terminal Software
 When you connect the USB cable to the USB port on your Windows machine and build the firmware, a new COM port will appear.   
 Open a new COM port in the terminal software.   
-When set to USB to LoRa, input data from the keyboard is sent to LoRa.   
+Input data from the keyboard is sent to all mesh nodes.   
 I used TeraTerm.   
 ![Image](https://github.com/user-attachments/assets/6460ecaa-e6a5-4534-b7d2-10de02fefed9)
 
@@ -77,7 +77,7 @@ I used TeraTerm.
 When you connect the USB cable to the USB port on your Linux machine and build the firmware, a new /dev/tty device will appear.   
 Open a new tty device in the terminal software.   
 Most occasions, the device is /dev/ttyACM0.   
-When set to USB to LoRa, input data from the keyboard is sent to LoRa.   
+Input data from the keyboard is sent to all mesh nodes.   
 I used cu.   
 ![Image](https://github.com/user-attachments/assets/914e5fbf-6f24-492f-b688-0002ecb0dcfa)
 
