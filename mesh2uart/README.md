@@ -14,7 +14,7 @@ This is esp-mesh-lite and UART/USB gateway application.
 	USB connection is only possible with ESP32S2/S3.   
 	```
 	+-------------+         +-----------------+          +-------------+          +-------------+
-	|Host Computer|<------->|USB-TTL CONVERTER|<--UART-->|  Root Node  |<--Mesh-->|  Leaf node  |
+	|Host Computer|<--USB-->|USB-TTL CONVERTER|<--UART-->|  Root Node  |<--Mesh-->|  Leaf node  |
 	+-------------+         +-----------------+          +-------------+          +-------------+
 
 	+-------------+                                      +-------------+          +-------------+
