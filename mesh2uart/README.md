@@ -56,13 +56,13 @@ idf.py flash
 # Configuration   
 One device must be configured as the root node and the other devices as leaf nodes.   
 
-- For Root node useing UART Interface
+- For Root node useing UART Interface   
 	![Image](https://github.com/user-attachments/assets/bd3db0d5-45df-44b7-9dc4-256427cafb8d)
 
-- For Root node useing USB Interface
+- For Root node useing USB Interface   
 	![Image](https://github.com/user-attachments/assets/1fd642df-296a-42f5-ad51-47a377847c57)
 
-- For Leaf node
+- For Leaf node   
 	![Image](https://github.com/user-attachments/assets/b7bdb3e2-3377-40d6-b919-6bbaf0145f75)
 
 
