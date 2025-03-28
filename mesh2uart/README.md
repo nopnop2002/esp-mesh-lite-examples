@@ -1,7 +1,7 @@
 # mesh2uart
 This is esp-mesh-lite and UART/USB gateway application.
 
-- Network configuration using a WiFi router
+- Network configuration using a WiFi router   
 Connect to the host computer via a WiFi router.   
 ```
 +-------------+             +-------------+          +-------------+          +-------------+
@@ -10,7 +10,7 @@ Connect to the host computer via a WiFi router.
 ```
 
 
-- Network configuration for this project
+- Network configuration for this project   
 USB connection is only possible with ESP32S2/S3.   
 ```
 +-------------+         +-----------------+          +-------------+          +-------------+
