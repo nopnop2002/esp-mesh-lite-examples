@@ -11,6 +11,7 @@ This is esp-mesh-lite and UART/USB gateway application.
 
 
 - Network configuration for this project   
+	Connect to the host computer via a UART/USB.   
 	USB connection is only possible with ESP32S2/S3.   
 	```
 	+-------------+         +-----------------+          +-------------+          +-------------+
