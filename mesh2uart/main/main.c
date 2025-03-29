@@ -390,37 +390,37 @@ void app_main()
 			rx_buffer[received] = 0;
 			ESP_LOGD(TAG, "rx_buffer=[%s]", rx_buffer);
 
-		// Sending messages from the root to all leaves
-		// esp_mesh_lite_try_sending_msg("broadcast")
-		//	 --> broadcast_process()
-		//	 --> esp_mesh_lite_try_sending_msg("broadcast")
-		//	 --> broadcast_process()
-		//	 --> esp_mesh_lite_try_sending_msg("broadcast")
-		//	 it will be sent until the maximum number of retransmissions is reached
-		cJSON *item = cJSON_CreateObject();
-		if (item) {
-			printf("[send to all child] number: %"PRIu32", payload: [%s]\r\n", sequence_number, rx_buffer);
-			cJSON_AddNumberToObject(item, "number", sequence_number);
-			cJSON_AddStringToObject(item, "payload", rx_buffer);
-			esp_mesh_lite_try_sending_msg("broadcast", NULL, MAX_RETRY, item, &esp_mesh_lite_send_broadcast_msg_to_child);
+			// Sending messages from the root to all leaves
+			// esp_mesh_lite_try_sending_msg("broadcast")
+			//	 --> broadcast_process()
+			//	 --> esp_mesh_lite_try_sending_msg("broadcast")
+			//	 --> broadcast_process()
+			//	 --> esp_mesh_lite_try_sending_msg("broadcast")
+			//	 it will be sent until the maximum number of retransmissions is reached
+			cJSON *item = cJSON_CreateObject();
+			if (item) {
+				printf("[send to all child] number: %"PRIu32", payload: [%s]\r\n", sequence_number, rx_buffer);
+				cJSON_AddNumberToObject(item, "number", sequence_number);
+				cJSON_AddStringToObject(item, "payload", rx_buffer);
+				esp_mesh_lite_try_sending_msg("broadcast", NULL, MAX_RETRY, item, &esp_mesh_lite_send_broadcast_msg_to_child);
 #if 0
-			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
-			esp_mesh_lite_msg_config_t config = {
-				.json_msg = {
-					.send_msg = "broadcast",
-					.expect_msg = NULL,
-					.max_retry = MAX_RETRY,
-					.retry_interval = 1000,
-					.req_payload = item,
-					.resend = &esp_mesh_lite_send_broadcast_msg_to_child,
-					.send_fail = NULL,
-				}
-			};
-			esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+				// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
+				esp_mesh_lite_msg_config_t config = {
+					.json_msg = {
+						.send_msg = "broadcast",
+						.expect_msg = NULL,
+						.max_retry = MAX_RETRY,
+						.retry_interval = 1000,
+						.req_payload = item,
+						.resend = &esp_mesh_lite_send_broadcast_msg_to_child,
+						.send_fail = NULL,
+					}
+				};
+				esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
 #endif
-			cJSON_Delete(item);
-			sequence_number++;
-		}
+				cJSON_Delete(item);
+				sequence_number++;
+			}
 		}
 	} // end while
 #endif
