@@ -1,0 +1,33 @@
+menu "Example Configuration"
+
+	config MESH_ROOT
+		select JOIN_MESH_IGNORE_ROUTER_STATUS
+		bool "Root device"
+		default n
+		help
+			Configure the root device type.
+
+	config MESH_CHANNEL
+		int "Mesh network channel"
+		range 1 14
+		default 11
+		help
+			Mesh network channel.
+
+	choice PRINT_FORMAT
+		depends on MESH_ROOT
+		prompt "Select JSON print format"
+		default PRINT_UNFORMATTED
+		help
+			Select JSON print format.
+		config PRINT_FORMATTED
+			bool "FORMATTED"
+			help
+				Print formatted 
+		config PRINT_UNFORMATTED
+			bool "UNFORMATTED"
+			help
+				Print unformatted 
+	endchoice
+
+endmenu

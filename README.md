@@ -36,3 +36,5 @@ An example of a routerless mesh network that exchanges data between nodes.
 # mesh2uart
 esp-mesh-lite and UART/USB gateway application.   
 
+# mesh2ble
+esp-mesh-lite and BLE gateway application.   
