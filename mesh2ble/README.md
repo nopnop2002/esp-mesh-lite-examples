@@ -59,11 +59,11 @@ I used [this](https://play.google.com/store/apps/details?id=de.kai_morich.serial
 	![Image](https://github.com/user-attachments/assets/f89813cd-2db8-4740-a8bb-9f600672d7c0)
 
 - Select Custom and specify UUID   
-	The UUIDs are different for ESP-Bluedroid and ESP-NimBLE.   
 	![Image](https://github.com/user-attachments/assets/fd9efc0c-37c8-448d-875a-015da2a9c1c8)
 
 - Connect to device   
 	You can communicate to mesh-lite root node using android.   
+	Input data from client is sent to all mesh nodes.
 	![Image](https://github.com/user-attachments/assets/219104b8-259d-49b1-9e03-430071191f46)
 
 # iOS Application   
