@@ -47,7 +47,7 @@ One device must be configured as the root node and the other devices as leaf nod
 ![Image](https://github.com/user-attachments/assets/e799621a-98d1-4504-8b35-4687ce9ac3d1)
 
 # Concurrent connection
-Unlike ESP-Bluedroid host stack, ESP-NimBLE host stack allows simultaneous connections.   
+ESP-NimBLE host stack allows simultaneous connections.   
 The maximum number of simultaneous connections is specified here.   
 However, I don't own multiple Androids, so I haven't tried this.   
 ![Image](https://github.com/user-attachments/assets/9d1e1182-ed41-4b9e-bc55-bb3c75dd4745)
