@@ -31,10 +31,10 @@ This is a TCP server script that can communicate with multiple ESP32s.
 You can try esp-mesh-lite now.   
 
 # no_router_message_exchange
-An example of a routerless mesh network that exchanges data between nodes.
+An example of a routerless mesh network that exchanges data between nodes.   
 
 # mesh2uart
-esp-mesh-lite and UART/USB gateway application.   
+esp-mesh-lite and UART/USB gateway application with routerless mesh networking.   
 
 # mesh2ble
-esp-mesh-lite and BLE gateway application.   
+esp-mesh-lite and BLE gateway application with routerless mesh networking.   
