@@ -32,3 +32,7 @@ You can try esp-mesh-lite now.
 
 # no_router_message_exchange
 An example of a routerless mesh network that exchanges data between nodes.
+
+# mesh2uart
+esp-mesh-lite and UART/USB gateway application.   
+
