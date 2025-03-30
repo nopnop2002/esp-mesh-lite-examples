@@ -3,6 +3,7 @@ dependencies:
     version: "^1.0.0"
     rules:
       - if: "idf_version >=5.0"
+      - if: "target in [esp32s2, esp32s3]"
   espressif/mesh_lite:
     version: "^1.0.1"
     rules:
