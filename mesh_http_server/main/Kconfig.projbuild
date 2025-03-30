@@ -1,0 +1,43 @@
+menu "Example Configuration"
+
+	config MESH_ROOT
+		select JOIN_MESH_IGNORE_ROUTER_STATUS
+		bool "Root device"
+		default n
+		help
+			Configure the root device type.
+
+	config ROUTER_SSID
+		string "Router SSID"
+			default "myssid"
+			help
+				SSID (network name) for the example to connect to.
+
+	config ROUTER_PASSWORD
+		string "Router password"
+			default "mypassword"
+			help
+				WiFi password (WPA or WPA2) for the example to use.
+
+	config MDNS_HOSTNAME
+		depends on MESH_ROOT
+		string "mDNS Hostname"
+		default "esp32-server"
+		help
+			The mDNS host name used by the ESP32.
+
+	config WEB_SERVER_PORT
+		depends on MESH_ROOT
+		int "Web Server port"
+		default 8080
+		help
+			Web Server port
+
+	config NODE_COMMENT
+		depends on !MESH_ROOT
+		string "Node comment"
+			default "Node comment"
+			help
+				Node comment.
+
+endmenu
