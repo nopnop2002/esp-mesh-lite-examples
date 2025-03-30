@@ -19,6 +19,7 @@ idf.py flash
 ```
 
 # Configuration for root   
+One device must be configured as the root node and the other devices as leaf nodes.   
 The root node acts as a WebServer.   
 Set the information of your access point and WebServer port.   
 ![Image](https://github.com/user-attachments/assets/24ab6d3b-a3f6-4e8b-b33f-cf570dbcd103)
