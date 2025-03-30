@@ -33,6 +33,7 @@ The WiFi channel used by the root node is obtained from the AP.
 
 # How to use
 Open a browser and enter the IP address of the ESP32 in the address bar.   
+Displays all node information in the Meh-Network.   
 ![Image](https://github.com/user-attachments/assets/83dbe781-c847-42de-8695-808ea4cbfecb)
 
 You can use the mDNS hostname instead of the IP address.   
