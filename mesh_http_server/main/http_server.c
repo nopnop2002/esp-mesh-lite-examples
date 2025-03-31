@@ -209,6 +209,8 @@ void http_server(void *pvParameters)
 				nodes[i].level = level;
 				nodes[i].entry_tick = xTaskGetTickCount();
 				nodes[i].seq_number = seq_number;
+				strncpy(nodes[i].parent_mac, parent_mac, STR_SIZE);
+				nodes[i].free_heap = free_heap;
 				tableIndex = i;
 			}
 		}
