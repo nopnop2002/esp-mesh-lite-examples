@@ -52,6 +52,7 @@ size_t xBufferSizeBytes = 1024;
 static void print_system_info_timercb(TimerHandle_t timer)
 {
 	uint8_t primary					= 0;
+	uint8_t ap_mac[6]               = {0};
 	uint8_t sta_mac[6]				= {0};
 	wifi_ap_record_t ap_info		= {0};
 	wifi_second_chan_t second		= 0;
@@ -60,7 +61,9 @@ static void print_system_info_timercb(TimerHandle_t timer)
 	if (esp_mesh_lite_get_level() > 1) {
 		esp_wifi_sta_get_ap_info(&ap_info);
 	}
+	esp_wifi_get_mac(ESP_IF_WIFI_AP, ap_mac);
 	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
+	ESP_LOGI(TAG, "ap_mac=[" MACSTR "] sta_mac=[" MACSTR "]", MAC2STR(ap_mac), MAC2STR(sta_mac));
 	esp_wifi_ap_get_sta_list(&wifi_sta_list);
 	esp_wifi_get_channel(&primary, &second);
 
@@ -84,7 +87,8 @@ static void print_system_info_timercb(TimerHandle_t timer)
 
 	static uint32_t seq_number = 0;
 	char self_mac[MAC_MAX_LEN];
-	snprintf(self_mac, sizeof(self_mac), MACSTR, MAC2STR(sta_mac));
+	snprintf(self_mac, sizeof(self_mac), MACSTR, MAC2STR(ap_mac));
+	//snprintf(self_mac, sizeof(self_mac), MACSTR, MAC2STR(sta_mac));
 	char parent_mac[MAC_MAX_LEN];
 	snprintf(parent_mac, sizeof(parent_mac), MACSTR, MAC2STR(ap_info.bssid));
 	int parent_rssi = (ap_info.rssi != 0 ? ap_info.rssi : -120);
