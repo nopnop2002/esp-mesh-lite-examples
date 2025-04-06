@@ -68,4 +68,4 @@ This shows the following mesh network configuration:
 ```
 
 You can use the mDNS hostname instead of the IP address.   
-![Image](https://github.com/user-attachments/assets/4ef89b59-ea06-4b9b-bdf2-7b61afeee5f3)
+![Image](https://github.com/user-attachments/assets/b188cbfb-16e7-4cdc-8822-b0055c543add)
