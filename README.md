@@ -24,6 +24,9 @@ HTTP server using esp-mesh-lite.
 # mesh_websocket_client
 WebSocket client using esp-mesh-lite.   
 
+# mesh_websocket_server
+WebSocket server using esp-mesh-lite.   
+
 # mesh_ftp_client
 FTP client using esp-mesh-lite.   
 
