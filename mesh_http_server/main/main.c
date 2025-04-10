@@ -20,14 +20,31 @@
 
 #include "esp_wifi.h"
 #include "nvs_flash.h"
+#include "esp_spiffs.h"
 #include "mdns.h"
-#include <sys/socket.h>
+#include <sys/socket.h> // ip_struct/inet_ntoa
+#include "rom/ets_sys.h" // ets_get_cpu_frequency()
+#include "esp_chip_info.h" // esp_chip_info_t
+#include "esp_flash.h" // esp_flash_get_size
+
+#include "driver/gpio.h" // gpio_dump_io_configuration
+#include "driver/spi_master.h" // SPI_HOST_MAX
+#include "driver/i2c.h" // I2C_NUM_MAX
+#include "driver/uart.h" // UART_NUM_MAX
 
 #include "esp_mac.h"
 #include "esp_bridge.h"
 #include "esp_mesh_lite.h"
 
 static const char *TAG = "MAIN";
+
+int gpio_count = 0;
+
+#define GPIO_TABLE_SIZE (64)
+int gpio_table[GPIO_TABLE_SIZE];
+
+// Send gpio_information only once
+bool gpio_information = true;
 
 #if CONFIG_MESH_ROOT
 /* FreeRTOS event group to signal when we are connected*/
@@ -46,13 +63,112 @@ size_t xBufferSizeBytes = 1024;
 
 #define MAX_RETRY  5
 
+static void build_ststem_object(cJSON *system)
+{
+	char wk[64];
+	sprintf(wk, "%s@%"PRIu32"Mhz", CONFIG_IDF_TARGET, ets_get_cpu_frequency());
+	cJSON_AddStringToObject(system, "soc", wk);
+
+	esp_chip_info_t chip_info;
+	esp_chip_info(&chip_info);
+	sprintf(wk, "%d CPU cores. WiFi%s%s%s%s",
+		chip_info.cores,
+		(chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "/EMB" : "",
+		(chip_info.features & CHIP_FEATURE_IEEE802154) ? "/802.15.4" : "",
+		(chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
+		(chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+	cJSON_AddStringToObject(system, "core", wk);
+
+	uint32_t embedded = chip_info.features & CHIP_FEATURE_EMB_FLASH;
+	if (embedded) {
+		uint32_t size_flash_chip;
+		esp_flash_get_size(NULL, &size_flash_chip);
+		sprintf(wk, "%"PRIi32"MB", size_flash_chip / (1024 * 1024));
+		strcat(wk, " [embedded]");
+	} else {
+		uint32_t chip_id;
+		ESP_ERROR_CHECK(esp_flash_read_id(NULL, &chip_id));
+		ESP_LOGI(TAG, "chip ID=0x%"PRIx32, chip_id);
+		int flash_capacity = chip_id & 0xff;
+		ESP_LOGI(TAG, "flash_capacity=0x%x", flash_capacity);
+		int external_flash_size = 0;
+		if (flash_capacity == 0x15) {
+			external_flash_size = 2;
+		} else if (flash_capacity == 0x16) {
+			external_flash_size = 4;
+		} else if (flash_capacity == 0x17) {
+			external_flash_size = 8;
+		} else if (flash_capacity == 0x18) {
+			external_flash_size = 16;
+		} else if (flash_capacity == 0x19) {
+			external_flash_size = 32;
+		} else if (flash_capacity == 0x20) {
+			external_flash_size = 64;
+		}
+		sprintf(wk, "%dMB", external_flash_size);
+		strcat(wk, " [external]");
+	}
+	cJSON_AddStringToObject(system, "flash", wk);
+
+	// gpio array
+	cJSON *array_gpio = cJSON_AddArrayToObject(system, "gpio");
+	if (array_gpio == NULL) {
+		ESP_LOGE(TAG, "cJSON_CreateArray fail");
+		vTaskDelete(NULL);
+	}
+	cJSON *gpio[gpio_count];
+	for (int i=0;i<gpio_count;i++) {
+		gpio[i] = cJSON_CreateNumber(gpio_table[i]);
+		cJSON_AddItemToArray(array_gpio, gpio[i]);
+	}
+
+	ESP_LOGI(TAG, "SPI_HOST_MAX=%d", SPI_HOST_MAX);
+	// spi array
+	cJSON *array_spi = cJSON_AddArrayToObject(system, "spi");
+	if (array_gpio == NULL) {
+		ESP_LOGE(TAG, "cJSON_CreateArray fail");
+		vTaskDelete(NULL);
+	}
+	cJSON *spi[SPI_HOST_MAX];
+	for (int i=0;i<SPI_HOST_MAX;i++) {
+		spi[i] = cJSON_CreateNumber(i);
+		cJSON_AddItemToArray(array_spi, spi[i]);
+	}
+
+	ESP_LOGI(TAG, "I2C_NUM_MAX=%d", I2C_NUM_MAX);
+	// i2c array
+	cJSON *array_i2c = cJSON_AddArrayToObject(system, "i2c");
+	if (array_gpio == NULL) {
+		ESP_LOGE(TAG, "cJSON_CreateArray fail");
+		vTaskDelete(NULL);
+	}
+	cJSON *i2c[I2C_NUM_MAX];
+	for (int i=0;i<I2C_NUM_MAX;i++) {
+		i2c[i] = cJSON_CreateNumber(i);
+		cJSON_AddItemToArray(array_i2c, i2c[i]);
+	}
+
+	ESP_LOGI(TAG, "UART_NUM_MAX=%d", UART_NUM_MAX);
+	// uart array
+	cJSON *array_uart = cJSON_AddArrayToObject(system, "uart");
+	if (array_gpio == NULL) {
+		ESP_LOGE(TAG, "cJSON_CreateArray fail");
+		vTaskDelete(NULL);
+	}
+	cJSON *uart[UART_NUM_MAX];
+	for (int i=0;i<UART_NUM_MAX;i++) {
+		uart[i] = cJSON_CreateNumber(i);
+		cJSON_AddItemToArray(array_uart, uart[i]);
+	}
+}
+
 /**
  * @brief Timed printing system information
  */
 static void print_system_info_timercb(TimerHandle_t timer)
 {
 	uint8_t primary					= 0;
-	uint8_t ap_mac[6]               = {0};
+	uint8_t ap_mac[6]				= {0};
 	uint8_t sta_mac[6]				= {0};
 	wifi_ap_record_t ap_info		= {0};
 	wifi_second_chan_t second		= 0;
@@ -69,7 +185,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 
 	ESP_LOGI(TAG, "System information, channel: %d, layer: %d, self mac: " MACSTR ", parent bssid: " MACSTR
 			 ", parent rssi: %d, free heap: %"PRIu32"", primary,
-			 esp_mesh_lite_get_level(), MAC2STR(sta_mac), MAC2STR(ap_info.bssid),
+			 esp_mesh_lite_get_level(), MAC2STR(ap_mac), MAC2STR(ap_info.bssid),
 			 (ap_info.rssi != 0 ? ap_info.rssi : -120), esp_get_free_heap_size());
 
 	for (int i = 0; i < wifi_sta_list.num; i++) {
@@ -94,75 +210,137 @@ static void print_system_info_timercb(TimerHandle_t timer)
 	int parent_rssi = (ap_info.rssi != 0 ? ap_info.rssi : -120);
 	uint32_t free_heap = esp_get_free_heap_size();
 
-	if (esp_mesh_lite_get_level() == 0) {
-
-	} else if (esp_mesh_lite_get_level() == 1) {
 #if CONFIG_MESH_ROOT
-		cJSON *item = cJSON_CreateObject();
-		if (item) {
-			cJSON_AddNumberToObject(item, "level", esp_mesh_lite_get_level());
-			cJSON_AddNumberToObject(item, "seq_number", seq_number);
-			cJSON_AddStringToObject(item, "self_mac", self_mac);
-			cJSON_AddStringToObject(item, "parent_mac", parent_mac);
-			cJSON_AddNumberToObject(item, "parent_rssi", parent_rssi);
-			cJSON_AddNumberToObject(item, "free_heap", free_heap);
-			cJSON_AddStringToObject(item, "target", CONFIG_IDF_TARGET);
-			cJSON_AddStringToObject(item, "node_comment", "root");
+	if (esp_mesh_lite_get_level() == 1) {
+		cJSON *root = cJSON_CreateObject();
+		if (root == NULL) {
+			ESP_LOGE(TAG, "cJSON_CreateObject fail");
+			vTaskDelete(NULL);
+		}
+		cJSON_AddStringToObject(root, "id", "node_information");
+		cJSON_AddNumberToObject(root, "level", esp_mesh_lite_get_level());
+		cJSON_AddNumberToObject(root, "seq_number", seq_number);
+		cJSON_AddStringToObject(root, "self_mac", self_mac);
+		cJSON_AddStringToObject(root, "parent_mac", parent_mac);
+		cJSON_AddNumberToObject(root, "parent_rssi", parent_rssi);
+		cJSON_AddNumberToObject(root, "free_heap", free_heap);
+		cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
+		cJSON_AddStringToObject(root, "node_comment", "root");
 
-			char *my_json_string = cJSON_PrintUnformatted(item);
-			ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
-			int json_length = strlen(my_json_string);
+		char *json_string = cJSON_PrintUnformatted(root);
+		ESP_LOGI(TAG, "json_string\n%s",json_string);
+		int json_length = strlen(json_string);
+		ESP_LOGI(TAG, "json_length=%d", json_length);
+		size_t sended = xMessageBufferSendFromISR(xMessageBufferNode, json_string, json_length, NULL);
+		if (sended != json_length) {
+			ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
+			vTaskDelete(NULL);
+		}
+		cJSON_free(json_string);
+		cJSON_Delete(root);
+		seq_number++;
+
+		if (gpio_information) {
+			// root object
+			cJSON *root = cJSON_CreateObject();
+			if (root == NULL) {
+				ESP_LOGE(TAG, "cJSON_CreateObject fail");
+				vTaskDelete(NULL);
+			}
+
+			// system object
+			cJSON *system = cJSON_CreateObject();
+			if (system == NULL) {
+				ESP_LOGE(TAG, "cJSON_CreateObject fail");
+				vTaskDelete(NULL);
+			}
+			build_ststem_object(system);
+
+			cJSON_AddStringToObject(root, "id", "system_information");
+			cJSON_AddStringToObject(root, "self_mac", self_mac);
+			cJSON_AddItemToObject(root, "system", system);
+			char *json_string = cJSON_PrintUnformatted(root);
+			ESP_LOGI(TAG, "json_string\n%s",json_string);
+			int json_length = strlen(json_string);
 			ESP_LOGI(TAG, "json_length=%d", json_length);
-			size_t sended = xMessageBufferSendFromISR(xMessageBufferNode, my_json_string, json_length, NULL);
+			size_t sended = xMessageBufferSendFromISR(xMessageBufferNode, json_string, json_length, NULL);
+			ESP_LOGI(TAG, "xMessageBufferSendFromISR sended=%d", sended);
 			if (sended != json_length) {
 				ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
+				vTaskDelete(NULL);
 			}
-			cJSON_free(my_json_string);
-			cJSON_Delete(item);
-			seq_number++;
-		}
-#endif
+			cJSON_free(json_string);
+			cJSON_Delete(root);
+			gpio_information = false;
+		} // end gpio_information
+	}
 
-	} else {
-
-#if !CONFIG_MESH_ROOT
+#else
+	if (esp_mesh_lite_get_level() > 1) {
 		// Sending messages from all leaves to the root
 		// esp_mesh_lite_try_sending_msg("report_info_to_root")
 		//	 -->report_info_to_root_process()
 		//	 -->report_info_to_root_ack()
 		//	 When a message of the expected type is received, stop retransmitting.
-		cJSON *item = cJSON_CreateObject();
-		if (item) {
-			printf("[send to root] level: %d seq_number: %"PRIu32" self_mac: [%s] parent_mac: [%s]\r\n", esp_mesh_lite_get_level(), seq_number, self_mac, parent_mac);
-			cJSON_AddNumberToObject(item, "level", esp_mesh_lite_get_level());
-			cJSON_AddNumberToObject(item, "seq_number", seq_number);
-			cJSON_AddStringToObject(item, "self_mac", self_mac);
-			cJSON_AddStringToObject(item, "parent_mac", parent_mac);
-			cJSON_AddNumberToObject(item, "parent_rssi", parent_rssi);
-			cJSON_AddNumberToObject(item, "free_heap", free_heap);
-			cJSON_AddStringToObject(item, "target", CONFIG_IDF_TARGET);
-			cJSON_AddStringToObject(item, "node_comment", CONFIG_NODE_COMMENT);
-			esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, item, &esp_mesh_lite_send_msg_to_root);
-#if 0
-			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
-			esp_mesh_lite_msg_config_t config = {
-				.json_msg = {
-					.send_msg = "report_info_to_root",
-					.expect_msg = "report_info_to_root_ack",
-					.max_retry = MAX_RETRY,
-					.retry_interval = 1000,
-					.req_payload = item,
-					.resend = &esp_mesh_lite_send_msg_to_root,
-					.send_fail = NULL,
-				}
-			};
-			esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
-#endif
-			cJSON_Delete(item);
-			seq_number++;
+		cJSON *root = cJSON_CreateObject();
+		if (root == NULL) {
+			ESP_LOGE(TAG, "cJSON_CreateObject fail");
+			vTaskDelete(NULL);
 		}
+		printf("[send to root] level: %d seq_number: %"PRIu32" self_mac: [%s] parent_mac: [%s]\r\n", esp_mesh_lite_get_level(), seq_number, self_mac, parent_mac);
+		cJSON_AddStringToObject(root, "id", "node_information");
+		cJSON_AddNumberToObject(root, "level", esp_mesh_lite_get_level());
+		cJSON_AddNumberToObject(root, "seq_number", seq_number);
+		cJSON_AddStringToObject(root, "self_mac", self_mac);
+		cJSON_AddStringToObject(root, "parent_mac", parent_mac);
+		cJSON_AddNumberToObject(root, "parent_rssi", parent_rssi);
+		cJSON_AddNumberToObject(root, "free_heap", free_heap);
+		cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
+		cJSON_AddStringToObject(root, "node_comment", CONFIG_NODE_COMMENT);
+		esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root);
+#if 0
+		// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
+		esp_mesh_lite_msg_config_t config = {
+			.json_msg = {
+				.send_msg = "report_info_to_root",
+				.expect_msg = "report_info_to_root_ack",
+				.max_retry = MAX_RETRY,
+				.retry_interval = 1000,
+				.req_payload = root,
+				.resend = &esp_mesh_lite_send_msg_to_root,
+				.send_fail = NULL,
+			}
+		};
+		esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
 #endif
+		cJSON_Delete(root);
+		seq_number++;
+
+		if (gpio_information) {
+			// root object
+			cJSON *root = cJSON_CreateObject();
+			if (root == NULL) {
+				ESP_LOGE(TAG, "cJSON_CreateObject fail");
+				vTaskDelete(NULL);
+			}
+
+			// system object
+			cJSON *system = cJSON_CreateObject();
+			if (system == NULL) {
+				ESP_LOGE(TAG, "cJSON_CreateObject fail");
+				vTaskDelete(NULL);
+			}
+			build_ststem_object(system);
+
+			cJSON_AddStringToObject(root, "id", "system_information");
+			cJSON_AddStringToObject(root, "self_mac", self_mac);
+			cJSON_AddItemToObject(root, "system", system);
+			esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root);
+			cJSON_Delete(root);
+			gpio_information = false;
+		} // end gpio_information
 	}
+#endif
 }
 
 #if CONFIG_MESH_ROOT
@@ -243,27 +421,30 @@ void app_wifi_set_softap_info(void)
 // https://gist.github.com/tswen/25d2054e868ef2b6c798a3ca05f77c7f
 static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
 {
+	// This handler is only used by the root node.
 #if CONFIG_MESH_ROOT
 	cJSON *found = NULL;
 
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "seq_number");
-	uint32_t seq_number = found->valueint;
-	found = cJSON_GetObjectItem(payload, "self_mac");
-	char *self_mac = found->valuestring;
-	found = cJSON_GetObjectItem(payload, "parent_mac");
-	char *parent_mac = found->valuestring;
-	printf("[recv from child] level: %d seq_number=%"PRIu32" self_mac: [%s] parent_mac: [%s]\r\n", level, seq_number, self_mac, parent_mac);
+	found = cJSON_GetObjectItem(payload, "id");
+	char *id = found->valuestring;
+	if (strcmp(id, "node_information") == 0) {
+		found = cJSON_GetObjectItem(payload, "level");
+		uint8_t level = found->valueint;
+		found = cJSON_GetObjectItem(payload, "self_mac");
+		char *self_mac = found->valuestring;
+		found = cJSON_GetObjectItem(payload, "parent_mac");
+		char *parent_mac = found->valuestring;
+		printf("[recv from child] level: %d self_mac: [%s] parent_mac: [%s]\r\n", level, self_mac, parent_mac);
+	}
 
-	char *my_json_string = cJSON_PrintUnformatted(payload);
-	ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
-	int json_length = strlen(my_json_string);
-	size_t sended = xMessageBufferSendFromISR(xMessageBufferNode, my_json_string, json_length, NULL);
+	char *json_string = cJSON_PrintUnformatted(payload);
+	ESP_LOGI(TAG, "json_string\n%s",json_string);
+	int json_length = strlen(json_string);
+	size_t sended = xMessageBufferSendFromISR(xMessageBufferNode, json_string, json_length, NULL);
 	if (sended != json_length) {
 		ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
 	}
-	cJSON_free(my_json_string);
+	cJSON_free(json_string);
 
 	//esp_mesh_lite_node_info_add was updated to esp_mesh_lite_node_info_update
 	//esp_mesh_lite_node_info_add(level, found->valuestring);
@@ -278,18 +459,6 @@ static cJSON* report_info_to_root_ack_process(cJSON *payload, uint32_t seq)
 
 static cJSON* report_info_to_parent_process(cJSON *payload, uint32_t seq)
 {
-	cJSON *found = NULL;
-
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "seq_number");
-	uint32_t seq_number = found->valueint;
-	found = cJSON_GetObjectItem(payload, "self_mac");
-	char *self_mac = found->valuestring;
-	found = cJSON_GetObjectItem(payload, "parent_mac");
-	char *parent_mac = found->valuestring;
-	printf("[recv from child] level: %d, seq_number=%"PRIu32", self_mac: [%s] parent_mac[%s]\r\n", level, seq_number, self_mac, parent_mac);
-
 	return NULL;
 }
 
@@ -300,18 +469,6 @@ static cJSON* report_info_to_parent_ack_process(cJSON *payload, uint32_t seq)
 
 static cJSON* report_info_to_sibling_process(cJSON *payload, uint32_t seq)
 {
-	cJSON *found = NULL;
-
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "seq_number");
-	uint32_t seq_number = found->valueint;
-	found = cJSON_GetObjectItem(payload, "self_mac");
-	char *self_mac = found->valuestring;
-	found = cJSON_GetObjectItem(payload, "parent_mac");
-	char *parent_mac = found->valuestring;
-	printf("[recv from sibling] level: %d, seq_number=%"PRIu32", self_mac: [%s] parent_mac: [%s]\r\n", level, seq_number, self_mac, parent_mac);
-
 	return NULL;
 }
 
@@ -346,7 +503,86 @@ static const esp_mesh_lite_msg_action_t node_report_action[] = {
 	{NULL, NULL, NULL} /* Must be NULL terminated */
 };
 
-#define BUF_SIZE 128
+esp_err_t mountSPIFFS(char * partition_label, char * mount_point) {
+	ESP_LOGI(TAG, "Initializing SPIFFS");
+	esp_vfs_spiffs_conf_t conf = {
+		//.base_path = "/spiffs",
+		.base_path = mount_point,
+		//.partition_label = NULL,
+		.partition_label = partition_label,
+		.max_files = 4, // maximum number of files which can be open at the same time
+		//.max_files = 256,
+		.format_if_mount_failed = true
+	};
+
+	// Use settings defined above to initialize and mount SPIFFS filesystem.
+	// Note: esp_vfs_spiffs_register is an all-in-one convenience function.
+	esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+	if (ret != ESP_OK) {
+		if (ret == ESP_FAIL) {
+			ESP_LOGE(TAG, "Failed to mount or format filesystem");
+		} else if (ret == ESP_ERR_NOT_FOUND) {
+			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+		} else {
+			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+		}
+		return ret;
+	}
+
+	size_t total = 0, used = 0;
+	//ret = esp_spiffs_info(NULL, &total, &used);
+	ret = esp_spiffs_info(partition_label, &total, &used);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+	} else {
+		ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+	}
+	return ret;
+}
+
+esp_err_t saveGpioTable(char * mount_point, int *gpio_table, int * gpio_count)
+{
+	int _gpio_count = *gpio_count;
+	ESP_LOGI(TAG, "Opening file");
+	char fileName[32];
+	strcpy(fileName, mount_point);
+	strcat(fileName, "/gpio_dump");
+	FILE* fp = fopen(fileName, "w");
+	if (fp == NULL) {
+		ESP_LOGE(TAG, "Failed to open file for writing");
+		return ESP_FAIL;
+	}
+	gpio_dump_io_configuration(fp, SOC_GPIO_VALID_GPIO_MASK);
+	fclose(fp);
+	ESP_LOGI(TAG, "File written");
+
+	fp = fopen(fileName, "r");
+	if (fp == NULL) {
+		ESP_LOGE(TAG, "Failed to open file for reading");
+		return ESP_FAIL;
+	}
+	char line[64];
+	while ( fgets(line, sizeof(line), fp) != NULL ) {
+		//printf("%s", line);
+		if (strncmp(line, "IO[", 3) != 0) continue;
+		char wk[10];
+		int ofs = 0;
+		for (int i=3;i<strlen(line);i++) {
+			if (line[i] == ']') break;
+			wk[ofs++] = line[i];
+			wk[ofs] = 0;
+		}
+		ESP_LOGD(TAG, "wk=[%s]", wk);
+		if (strstr(line, "**RESERVED**") == NULL) {
+			gpio_table[_gpio_count] = atoi(wk);
+			_gpio_count++;
+		}
+	}
+	fclose(fp);
+	*gpio_count = _gpio_count;
+	return ESP_OK;
+}
 
 #if CONFIG_MESH_ROOT
 void http_server(void *pvParameters);
@@ -358,6 +594,18 @@ void app_main()
 	esp_log_level_set("*", ESP_LOG_INFO);
 
 	ESP_ERROR_CHECK(esp_storage_init());
+
+	// Mount SPIFFS File System on FLASH
+	char *partition_label = "storage";
+	char *mount_point = "/spiffs";
+	ESP_ERROR_CHECK(mountSPIFFS(partition_label, mount_point));
+
+	// Build gpio table
+	ESP_ERROR_CHECK(saveGpioTable(mount_point, gpio_table, &gpio_count));
+	ESP_LOGI(TAG, "gpio_count=%d", gpio_count);
+	for (int i=0;i<gpio_count;i++) {
+		ESP_LOGI(TAG, "gpio_table[%d]=%d", i, gpio_table[i]);
+	}
 
 #if CONFIG_MESH_ROOT
 	// Create MessageBuffer
@@ -415,8 +663,7 @@ void app_main()
 
 #endif
 
-	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS,
-									   true, NULL, print_system_info_timercb);
+	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS, true, NULL, print_system_info_timercb);
 	xTimerStart(timer, 0);
 
 	// Preventing local variables from being destroyed
