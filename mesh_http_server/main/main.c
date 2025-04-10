@@ -43,9 +43,6 @@ int gpio_count = 0;
 #define GPIO_TABLE_SIZE (64)
 int gpio_table[GPIO_TABLE_SIZE];
 
-// Send gpio_information only once
-bool gpio_information = true;
-
 #if CONFIG_MESH_ROOT
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -63,8 +60,14 @@ size_t xBufferSizeBytes = 1024;
 
 #define MAX_RETRY  5
 
-static void build_ststem_object(cJSON *system)
+static esp_err_t build_system_object(cJSON *root)
 {
+	cJSON *system = cJSON_CreateObject();
+	if (system == NULL) {
+		ESP_LOGE(TAG, "cJSON_CreateObject fail");
+		return ESP_ERR_NO_MEM;
+	}
+
 	char wk[64];
 	sprintf(wk, "%s@%"PRIu32"Mhz", CONFIG_IDF_TARGET, ets_get_cpu_frequency());
 	cJSON_AddStringToObject(system, "soc", wk);
@@ -114,7 +117,7 @@ static void build_ststem_object(cJSON *system)
 	cJSON *array_gpio = cJSON_AddArrayToObject(system, "gpio");
 	if (array_gpio == NULL) {
 		ESP_LOGE(TAG, "cJSON_CreateArray fail");
-		vTaskDelete(NULL);
+		return ESP_ERR_NO_MEM;
 	}
 	cJSON *gpio[gpio_count];
 	for (int i=0;i<gpio_count;i++) {
@@ -127,7 +130,7 @@ static void build_ststem_object(cJSON *system)
 	cJSON *array_spi = cJSON_AddArrayToObject(system, "spi");
 	if (array_gpio == NULL) {
 		ESP_LOGE(TAG, "cJSON_CreateArray fail");
-		vTaskDelete(NULL);
+		return ESP_ERR_NO_MEM;
 	}
 	cJSON *spi[SPI_HOST_MAX];
 	for (int i=0;i<SPI_HOST_MAX;i++) {
@@ -140,7 +143,7 @@ static void build_ststem_object(cJSON *system)
 	cJSON *array_i2c = cJSON_AddArrayToObject(system, "i2c");
 	if (array_gpio == NULL) {
 		ESP_LOGE(TAG, "cJSON_CreateArray fail");
-		vTaskDelete(NULL);
+		return ESP_ERR_NO_MEM;
 	}
 	cJSON *i2c[I2C_NUM_MAX];
 	for (int i=0;i<I2C_NUM_MAX;i++) {
@@ -153,13 +156,16 @@ static void build_ststem_object(cJSON *system)
 	cJSON *array_uart = cJSON_AddArrayToObject(system, "uart");
 	if (array_gpio == NULL) {
 		ESP_LOGE(TAG, "cJSON_CreateArray fail");
-		vTaskDelete(NULL);
+		return ESP_ERR_NO_MEM;
 	}
 	cJSON *uart[UART_NUM_MAX];
 	for (int i=0;i<UART_NUM_MAX;i++) {
 		uart[i] = cJSON_CreateNumber(i);
 		cJSON_AddItemToArray(array_uart, uart[i]);
 	}
+
+	cJSON_AddItemToObject(root, "system", system);
+	return ESP_OK;
 }
 
 /**
@@ -240,7 +246,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		cJSON_Delete(root);
 		seq_number++;
 
-		if (gpio_information) {
+		if ((seq_number % 10) == 1) {
 			// root object
 			cJSON *root = cJSON_CreateObject();
 			if (root == NULL) {
@@ -248,17 +254,9 @@ static void print_system_info_timercb(TimerHandle_t timer)
 				vTaskDelete(NULL);
 			}
 
-			// system object
-			cJSON *system = cJSON_CreateObject();
-			if (system == NULL) {
-				ESP_LOGE(TAG, "cJSON_CreateObject fail");
-				vTaskDelete(NULL);
-			}
-			build_ststem_object(system);
-
+			ESP_ERROR_CHECK(build_system_object(root));
 			cJSON_AddStringToObject(root, "id", "system_information");
 			cJSON_AddStringToObject(root, "self_mac", self_mac);
-			cJSON_AddItemToObject(root, "system", system);
 			char *json_string = cJSON_PrintUnformatted(root);
 			ESP_LOGI(TAG, "json_string\n%s",json_string);
 			int json_length = strlen(json_string);
@@ -271,7 +269,6 @@ static void print_system_info_timercb(TimerHandle_t timer)
 			}
 			cJSON_free(json_string);
 			cJSON_Delete(root);
-			gpio_information = false;
 		} // end gpio_information
 	}
 
@@ -297,7 +294,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		cJSON_AddNumberToObject(root, "free_heap", free_heap);
 		cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
 		cJSON_AddStringToObject(root, "node_comment", CONFIG_NODE_COMMENT);
-		esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root);
+		ESP_ERROR_CHECK(esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root));
 #if 0
 		// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
 		esp_mesh_lite_msg_config_t config = {
@@ -316,7 +313,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		cJSON_Delete(root);
 		seq_number++;
 
-		if (gpio_information) {
+		if ((seq_number % 10) == 1) {
 			// root object
 			cJSON *root = cJSON_CreateObject();
 			if (root == NULL) {
@@ -324,20 +321,11 @@ static void print_system_info_timercb(TimerHandle_t timer)
 				vTaskDelete(NULL);
 			}
 
-			// system object
-			cJSON *system = cJSON_CreateObject();
-			if (system == NULL) {
-				ESP_LOGE(TAG, "cJSON_CreateObject fail");
-				vTaskDelete(NULL);
-			}
-			build_ststem_object(system);
-
+			ESP_ERROR_CHECK(build_system_object(root));
 			cJSON_AddStringToObject(root, "id", "system_information");
 			cJSON_AddStringToObject(root, "self_mac", self_mac);
-			cJSON_AddItemToObject(root, "system", system);
-			esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root);
+			ESP_ERROR_CHECK(esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root));
 			cJSON_Delete(root);
-			gpio_information = false;
 		} // end gpio_information
 	}
 #endif

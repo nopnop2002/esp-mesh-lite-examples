@@ -339,7 +339,7 @@ void http_server(void *pvParameters)
 					ESP_LOGW(TAG, "nodes[%s] is gone", nodes[i].self_mac);
 					nodes[i].entry_tick = 0;
 					nodes[i].level = 0xFF;
-					cJSON_free(nodes[i].system_string);
+					if (nodes[i].system_string != NULL) cJSON_free(nodes[i].system_string);
 					nodes[i].system_string = NULL;
 				}
 			}
@@ -359,6 +359,7 @@ void http_server(void *pvParameters)
 				ESP_LOGI(TAG, "node[%d].self_mac=[%s]", i, nodes[i].self_mac);
 				if (strcmp(nodes[i].self_mac, self_mac) == 0) {
 					cJSON *system = cJSON_GetObjectItem(root, "system");;
+					if (nodes[i].system_string != NULL) cJSON_free(nodes[i].system_string);
 					nodes[i].system_string = cJSON_Print(system);
 					ESP_LOGI(TAG, "system_string\n%s",nodes[i].system_string);
 					//cJSON_free(system_string);
