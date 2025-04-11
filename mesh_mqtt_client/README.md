@@ -1,6 +1,8 @@
 # mesh_mqtt_client
 MQTT client for esp-mesh-lite.   
-Every node acts as an mqtt client.
+Every node acts as an mqtt client.   
+All nodes have the same IP address.   
+Every node has a different local port.   
 ```
 +-----------+                      +----------+
 |           |<---(mqtt publish)----|   root   |
