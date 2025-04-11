@@ -4,14 +4,10 @@ An official sample is available [here](https://github.com/espressif/esp-mesh-lit
 The official sample allows you to build a router-less mesh network, but it does not have the ability to exchange data between nodes.   
 Therefore, we added a function for exchanging data between nodes.   
 ```
-+----------+                 +----------+
-|          |---(broadcast)-->|  leaf1   |
-|          |<---(to root)----|          |
-|  root    |                 +----------+
-|          |                 +----------+
-|          |---(broadcast)-->|  leaf2   |
-|          |<---(to root)----|          |
-+----------+                 +----------+
++----------+                 +----------+                 +----------+
+|  root    |---(broadcast)-->|  leaf1   |---(broadcast)-->|  leaf11  |
+|          |<---(to root)----|          |<---(to root)----|          |
++----------+                 +----------+                 +----------+
 ```
 
 # Software requirements
