@@ -1,5 +1,16 @@
 # mesh_websocket_client
-WebSocket client for esp-mesh-lite.
+WebSocket client for esp-mesh-lite.   
+Every node acts as an web socket client.   
+All nodes have the same IP address.   
+```
++-------------+                +----------+
+|             |<--(send text)--|   root   |
+|             |                +----------+
+|socket server|
+|             |                +----------+
+|             |<--(send text)--|   leaf   |
++-------------+                +----------+
+```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
