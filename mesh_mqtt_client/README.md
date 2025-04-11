@@ -1,5 +1,18 @@
 # mesh_mqtt_client
-MQTT client for esp-mesh-lite.
+MQTT client for esp-mesh-lite.   
+Every node acts as an mqtt client.
+```
++-----------+                      +----------+
+|           |<---(mqtt publish)----|   root   |
+|           |---(mqtt subscribe)-->|          |
+|           |                      +----------+
+|           |
+|mqtt broker|                      +----------+
+|           |<---(mqtt publish)----|   leaf   |
+|           |---(mqtt subscribe)-->|          |
+|           |                      +----------+
++-----------+
+```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
