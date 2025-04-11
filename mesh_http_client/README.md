@@ -1,5 +1,15 @@
 # mesh_http_client
-HTTP client for esp-mesh-lite.
+HTTP client for esp-mesh-lite.   
+Every node acts as an http client.   
+```
++-----------+                +----------+
+|           |<--(http post)--|   root   |
+|           |                +----------+
+|http server|
+|           |                +----------+
+|           |<--(http post)--|   leaf   |
++-----------+                +----------+
+```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
