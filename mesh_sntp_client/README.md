@@ -1,6 +1,9 @@
 # mesh_sntp_client
 SNTP client for esp-mesh-lite.   
 Every node acts as an sntp client.   
+All nodes have the same IP address.   
+Every node has a different local port.   
+
 ```
 +-----------+                      +----------+
 |           |<---(sntp request)----|   root   |
