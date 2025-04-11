@@ -1,6 +1,17 @@
 # mesh_ftp_client
 FTP client for esp-mesh-lite.   
+Every node acts as an ftp client.   
+All nodes have the same IP address.   
 I used [this](https://github.com/nopnop2002/esp-idf-ftpClient) component.   
+```
++----------+               +----------+
+|          |<--(ftp put)---|   root   |
+|          |               +----------+
+|ftp server|
+|          |               +----------+
+|          |<--(ftp get)---|   leaf   |
++----------+               +----------+
+```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
