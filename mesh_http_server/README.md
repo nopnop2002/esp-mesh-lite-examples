@@ -1,5 +1,12 @@
 # mesh_http_server
-HTTP server for esp-mesh-lite.
+HTTP server for esp-mesh-lite.   
+Only the root node can act as a server.   
+Leaf nodes communicate with the root node via internal communication.   
+```
++----------+           +----------+               +----------+
+| Browser  |<--(http)--|  root    |<--(Internal)--|   leaf   |
++----------+           +----------+               +----------+
+```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
