@@ -1,5 +1,18 @@
 # mesh_sntp_client
-SNTP client for esp-mesh-lite.
+SNTP client for esp-mesh-lite.   
+Every node acts as an sntp client.   
+```
++-----------+                      +----------+
+|           |<---(sntp request)----|   root   |
+|           |----(sntp responce)-->|          |
+|           |                      +----------+
+|sntp server|
+|           |                      +----------+
+|           |<---(sntp request)----|   leaf   |
+|           |----(sntp responce)-->|          |
+|           |                      +----------+
++-----------+
+```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
