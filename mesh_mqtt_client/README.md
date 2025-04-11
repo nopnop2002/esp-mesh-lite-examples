@@ -6,8 +6,8 @@ Every node acts as an mqtt client.
 |           |<---(mqtt publish)----|   root   |
 |           |---(mqtt subscribe)-->|          |
 |           |                      +----------+
-|           |
-|mqtt broker|                      +----------+
+|mqtt broker|
+|           |                      +----------+
 |           |<---(mqtt publish)----|   leaf   |
 |           |---(mqtt subscribe)-->|          |
 |           |                      +----------+
