@@ -3,9 +3,11 @@ HTTP server for esp-mesh-lite.
 Only the root node can act as a server.   
 Leaf nodes communicate with the root node via internal communication.   
 ```
-+----------+           +----------+               +----------+
-| Browser  |<--(http)--|   root   |<--(Internal)--|   leaf   |
-+----------+           +----------+               +----------+
++----------+               +----------+               +----------+
+|          |---(request)-->|          |               |          |
+| Browser  |               |   root   |<--(Internal)--|   leaf   |
+|          |<--(response)--|          |               |          |
++----------+               +----------+               +----------+
 ```
 
 # Software requirements
