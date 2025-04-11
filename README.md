@@ -8,9 +8,9 @@ This repository contains example code for esp-mesh-lite that is not in the offic
 # The differences between ESP-MESH-LITE and ESP-MESH
 The differences between ESP-MESH-LITE and ESP-MESH are published [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/User_Guide.md#difference-between-esp-mesh-lite-and-esp-mesh).   
 Among them, the following is particularly important:   
-In ESP-MESH, only the root node enables the LWIP stack, and all child nodes must transfer via the root node to communicate with external networks.   
+```In ESP-MESH, only the root node enables the LWIP stack, and all child nodes must transfer via the root node to communicate with external networks.```   
 To put it the other way around,   
-in ESP-MESH-LITE, all nodes enable the LWIP stack, and all child nodes can transfer without going through the root node to communicate with external networks.   
+```In ESP-MESH-LITE, all nodes enable the LWIP stack, and all child nodes can transfer without going through the root node to communicate with external networks.```   
 This makes communication with external networks incredibly easy.   
 
 # Software requirements
