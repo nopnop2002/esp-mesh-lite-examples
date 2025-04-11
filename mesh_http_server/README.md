@@ -4,7 +4,7 @@ Only the root node can act as a server.
 Leaf nodes communicate with the root node via internal communication.   
 ```
 +----------+           +----------+               +----------+
-| Browser  |<--(http)--|  root    |<--(Internal)--|   leaf   |
+| Browser  |<--(http)--|   root   |<--(Internal)--|   leaf   |
 +----------+           +----------+               +----------+
 ```
 
