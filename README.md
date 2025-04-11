@@ -49,7 +49,7 @@ You can try esp-mesh-lite now.
 An example of a routerless mesh network that exchanges data between nodes.   
 
 # mesh2uart
-esp-mesh-lite and UART/USB gateway application for routerless mesh networking.   
+esp-mesh-lite and UART/USB gateway application for routerless mesh networks.
 
 # mesh2ble
-esp-mesh-lite and BLE gateway application for routerless mesh networking.   
+esp-mesh-lite and BLE gateway application for routerless mesh networks.   
