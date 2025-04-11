@@ -1,6 +1,7 @@
 # mesh_http_client
 HTTP client for esp-mesh-lite.   
 Every node acts as an http client.   
+All nodes have the same IP address.   
 ```
 +-----------+                +----------+
 |           |<--(http post)--|   root   |
