@@ -12,6 +12,7 @@ Among them, the following is particularly important:
 To put it the other way around,   
 ```In ESP-MESH-LITE, all nodes enables the LWIP stack, and all child nodes can communicate with external networks without going through the root node.```   
 This makes communication with external networks incredibly easy.   
+Also, the load on the root node is (presumably) lower, since child nodes can communicate directly with the external network.   
 
 # Software requirements
 ESP-IDF V5.0 or later.   
