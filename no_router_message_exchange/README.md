@@ -5,7 +5,7 @@ The official sample allows you to build a router-less mesh network, but it does 
 Therefore, we added a function for exchanging data between nodes.   
 ```
 +----------+                 +----------+                 +----------+
-|  root    |---(broadcast)-->|  leaf1   |---(broadcast)-->|  leaf11  |
+|   root   |---(broadcast)-->|  leaf1   |---(broadcast)-->|  leaf11  |
 |          |<---(to root)----|          |<---(to root)----|          |
 +----------+                 +----------+                 +----------+
 ```
