@@ -13,8 +13,7 @@ Every node has a different local port.
 |           |                      +----------+
 |           |<---(sntp request)----|   leaf   |
 |           |----(sntp responce)-->|          |
-|           |                      +----------+
-+-----------+
++-----------+                      +----------+
 ```
 
 # Software requirements
