@@ -12,8 +12,7 @@ Every node has a different local port.
 |           |                      +----------+
 |           |<---(mqtt publish)----|   leaf   |
 |           |---(mqtt subscribe)-->|          |
-|           |                      +----------+
-+-----------+
++-----------+                      +----------+
 ```
 
 # Software requirements
