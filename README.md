@@ -10,7 +10,7 @@ The differences between ESP-MESH-LITE and ESP-MESH are published [here](https://
 Among them, the following is particularly important:   
 ```In ESP-MESH, only the root node enables the LWIP stack, and all child nodes must transfer via the root node to communicate with external networks.```   
 To put it the other way around,   
-```In ESP-MESH-LITE, all nodes enables the LWIP stack, and all child nodes can communicate with external networks without going through the root node.```   
+```In ESP-MESH-LITE, all nodes enables the LWIP stack, and all child nodes don't have to transfer via the root node to communicate with external networks.```   
 This makes communication with external networks incredibly easy.   
 ESP-MESH-LITE utilizes [this](https://github.com/espressif/esp-iot-bridge/blob/master/components/iot_bridge/User_Guide.md) technology.   
 
