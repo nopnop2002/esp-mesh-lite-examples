@@ -6,13 +6,11 @@ Every node has a different local port.
 Messages from leaf nodes are forwarded through the root node.   
 ```
 +-----------+                      +----------+
-|           |<---(mqtt publish)----|   root   |
-|           |<--(mqtt subscribe)---|          |
+|           |<---(mqtt request)----|   root   |
 |           |                      |          |
 |mqtt broker|                      |          |
 |           |                      |          |                      +----------+
-|           |<---(mqtt publish)----|          |<---(mqtt publish)----|   leaf   |
-|           |<--(mqtt subscribe)---|          |<--(mqtt subscribe)---|          |
+|           |<---(mqtt request)----|          |<---(mqtt resuest)----|   leaf   |
 +-----------+                      +----------+                      +----------+
 ```
 
