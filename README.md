@@ -15,7 +15,7 @@ To put it the other way around,
 ```In ESP-MESH-LITE, all nodes enables the LWIP stack, and all child nodes don't have to transfer via the root node to communicate with external networks.```   
 This makes communication with external networks incredibly easy.   
 ESP-MESH-LITE utilizes [this](https://github.com/espressif/esp-iot-bridge/blob/master/components/iot_bridge/User_Guide.md) technology.   
-[Here](https://raw.githubusercontent.com/espressif/esp-iot-bridge/master/components/iot_bridge/docs/_static/wifi_router_en.png) is a typical block diagram of this function.
+[Here](https://raw.githubusercontent.com/espressif/esp-iot-bridge/master/components/iot_bridge/docs/_static/wifi_router_en.png) is a typical block diagram of this technology.
 # Software requirements
 ESP-IDF V5.0 or later.   
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
