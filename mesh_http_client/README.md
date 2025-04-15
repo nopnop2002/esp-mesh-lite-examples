@@ -2,14 +2,15 @@
 HTTP client for esp-mesh-lite.   
 Every node acts as an http client.   
 All nodes have the same IP address.   
+Messages from leaf nodes are forwarded through the root node.   
 ```
 +-----------+                +----------+
 |           |<--(http post)--|   root   |
-|           |                +----------+
-|http server|
-|           |                +----------+
-|           |<--(http post)--|   leaf   |
-+-----------+                +----------+
+|           |                |          |
+|http server|                |          |
+|           |                |          |                +----------+
+|           |<--(http post)--|<---------|<--(http post)--|   leaf   |
++-----------+                +----------+                +----------+
 ```
 
 # Software requirements
