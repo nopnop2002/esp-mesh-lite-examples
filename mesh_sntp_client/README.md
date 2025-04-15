@@ -3,17 +3,17 @@ SNTP client for esp-mesh-lite.
 Every node acts as an sntp client.   
 All nodes have the same IP address.   
 Every node has a different local port.   
-
+Messages from leaf nodes are forwarded through the root node.   
 ```
 +-----------+                      +----------+
 |           |<---(sntp request)----|   root   |
 |           |----(sntp responce)-->|          |
-|           |                      +----------+
-|sntp server|
-|           |                      +----------+
-|           |<---(sntp request)----|   leaf   |
-|           |----(sntp responce)-->|          |
-+-----------+                      +----------+
+|           |                      |          |
+|sntp server|                      |          |
+|           |                      |          |                      +----------+
+|           |<---(sntp request)----|<---------|<---(sntp request)----|   leaf   |
+|           |----(sntp responce)-->|--------->|----(sntp responce)-->|          |
++-----------+                      +----------+                      +----------+
 ```
 
 # Software requirements
