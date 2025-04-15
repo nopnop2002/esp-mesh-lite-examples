@@ -19,11 +19,11 @@ ESP-MESH-LITE utilizes [this](https://github.com/espressif/esp-iot-bridge/blob/m
 
 # Mesh Solutions
 In addition to ESP-MESH-LITE, we can use the following Mesh Solutions:   
+Mesh Solution Comparison is [here](https://docs.espressif.com/projects/esp-techpedia/en/latest/esp-friends/solution-introduction/mesh/mesh-comparison.html).   
 - ESP BLE Mesh   
 - ESP Thread Mesh   
 - ZigBee Mesh   
 - ESP-Now   
-Mesh Solution Comparison is [here](https://docs.espressif.com/projects/esp-techpedia/en/latest/esp-friends/solution-introduction/mesh/mesh-comparison.html).   
 
 
 # Software requirements
