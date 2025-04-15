@@ -16,6 +16,16 @@ To put it the other way around,
 This makes communication with external networks incredibly easy.   
 ESP-MESH-LITE utilizes [this](https://github.com/espressif/esp-iot-bridge/blob/master/components/iot_bridge/User_Guide.md) technology.   
 [Here](https://raw.githubusercontent.com/espressif/esp-iot-bridge/master/components/iot_bridge/docs/_static/wifi_router_en.png) is a typical block diagram of this technology.
+
+# Mesh Solutions
+In addition to ESP-MESH-LITE, we can use the following Mesh Solutions:   
+- ESP BLE Mesh   
+- ESP Thread Mesh   
+- ZigBee Mesh   
+- ESP-Now   
+Mesh Solution Comparison is [here](https://docs.espressif.com/projects/esp-techpedia/en/latest/esp-friends/solution-introduction/mesh/mesh-comparison.html).   
+
+
 # Software requirements
 ESP-IDF V5.0 or later.   
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
