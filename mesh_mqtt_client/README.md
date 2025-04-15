@@ -3,16 +3,17 @@ MQTT client for esp-mesh-lite.
 Every node acts as an mqtt client.   
 All nodes have the same IP address.   
 Every node has a different local port.   
+Messages from leaf nodes are forwarded through the root node.   
 ```
 +-----------+                      +----------+
 |           |<---(mqtt publish)----|   root   |
-|           |---(mqtt subscribe)-->|          |
-|           |                      +----------+
-|mqtt broker|
-|           |                      +----------+
-|           |<---(mqtt publish)----|   leaf   |
-|           |---(mqtt subscribe)-->|          |
-+-----------+                      +----------+
+|           |<--(mqtt subscribe)---|          |
+|           |                      |          |
+|mqtt broker|                      |          |
+|           |                      |          |                      +----------+
+|           |<---(mqtt publish)----|          |<---(mqtt publish)----|   leaf   |
+|           |<--(mqtt subscribe)---|          |<--(mqtt subscribe)---|          |
++-----------+                      +----------+                      +----------+
 ```
 
 # Software requirements
