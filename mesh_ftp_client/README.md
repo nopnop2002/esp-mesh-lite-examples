@@ -2,20 +2,21 @@
 FTP client for esp-mesh-lite.   
 Every node acts as an ftp client.   
 All nodes have the same IP address.   
-I used [this](https://github.com/nopnop2002/esp-idf-ftpClient) component.   
+Messages from leaf nodes are forwarded through the root node.   
 ```
 +----------+               +----------+
 |          |<--(ftp put)---|   root   |
-|          |               +----------+
-|ftp server|
-|          |               +----------+
-|          |<--(ftp get)---|   leaf   |
-+----------+               +----------+
+|          |               |          |
+|ftp server|               |          |
+|          |               |          |               +----------+
+|          |<--(ftp get)---|<---------|<--(ftp get)---|   leaf   |
++----------+               +----------+               +----------+
 ```
 
 # Software requirements
 ESP-IDF V5.0 or later.   
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
+I used [this](https://github.com/nopnop2002/esp-idf-ftpClient) component.   
 
 # Hardware requirements
 - At least 2 x ESP32 development boards
