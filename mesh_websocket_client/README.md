@@ -2,14 +2,15 @@
 WebSocket client for esp-mesh-lite.   
 Every node acts as an web socket client.   
 All nodes have the same IP address.   
+Messages from leaf nodes are forwarded through the root node.   
 ```
 +-------------+                +----------+
 |             |<--(send text)--|   root   |
-|             |                +----------+
-|socket server|
-|             |                +----------+
-|             |<--(send text)--|   leaf   |
-+-------------+                +----------+
+|             |                |          |
+|socket server|                |          |
+|             |                |          |                +----------+
+|             |<--(send text)--|<---------|<--(send text)--|   leaf   |
++-------------+                +----------+                +----------+
 ```
 
 # Software requirements
