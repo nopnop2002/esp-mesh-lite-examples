@@ -9,8 +9,7 @@ This repository contains example code for esp-mesh-lite that is not in the offic
 ESP-MESH is a standard feature of ESP-IDF.   
 An ESP-MESH example is available [here](https://github.com/espressif/esp-idf/tree/master/examples/mesh).   
 
-
-[There](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/User_Guide.md) is some useful material published here.   
+[Here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/User_Guide.md) is some documentation that may help.   
 Among them, the following is particularly important:   
 ```Each node in ESP-Mesh-Lite enables the LWIP stack and can be treated as a device directly connected to the router, which can independently invoke network interfaces such as Socket, MQTT, HTTP, etc., on the application layer.```   
 This makes communication with external networks incredibly easy.   
