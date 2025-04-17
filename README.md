@@ -13,7 +13,8 @@ The documentation is published [here](https://github.com/espressif/esp-mesh-lite
 Among them, the following is particularly important:   
 ```Each node in ESP-Mesh-Lite enables the LWIP stack and can be treated as a device directly connected to the router, which can independently invoke network interfaces such as Socket, MQTT, HTTP, etc., on the application layer.```   
 This makes communication with external networks incredibly easy.   
-ESP-MESH-LITE utilizes [this](https://github.com/espressif/esp-iot-bridge/blob/master/components/iot_bridge/User_Guide.md) technology.   
+
+MESH-LITE uses [this](https://github.com/espressif/esp-iot-bridge/blob/master/components/iot_bridge/User_Guide.md) esp-iot-bridge.   
 [Here](https://raw.githubusercontent.com/espressif/esp-iot-bridge/master/components/iot_bridge/docs/_static/wifi_router_en.png) is a typical block diagram of this technology.
 
 # Mesh Solutions
