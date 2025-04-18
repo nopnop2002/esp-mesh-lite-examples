@@ -21,7 +21,7 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 # Installation
 ```
 git clone https://github.com/nopnop2002/esp-mesh-lite-examples
-cd esp-mesh-lite-examples/no_router_message_exchange
+cd esp-mesh-lite-examples/router_less_message_exchange
 idf.py menuconfig
 idf.py flash
 ```
