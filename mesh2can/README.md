@@ -57,7 +57,8 @@ One device must be configured as the root node and the other devices as leaf nod
 # CAN-BUS monitoring
 You can use this to monitor the CAN-BUS.   
 https://github.com/nopnop2002/esp-idf-candump   
-
+https://github.com/nopnop2002/Arduino-CANBus-Monitor   
+https://github.com/nopnop2002/esp-idf-CANBus-Monitor   
 
 The maximum message length for CAN is 8 bytes.   
 The following 8 bytes are notified from the leaf node.   
