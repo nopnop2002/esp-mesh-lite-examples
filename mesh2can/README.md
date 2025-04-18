@@ -44,13 +44,13 @@ One device must be configured as the root node and the other devices as leaf nod
 	![Image](https://github.com/user-attachments/assets/06584d50-ff8f-45db-a5d2-0b07d9c32ce3)
 	![Image](https://github.com/user-attachments/assets/db6dedcd-755a-4541-bb97-f7a9ad511f27)
 
-- For leaf node using standard can   
-	Leaf node information is notified using the standard CAN-ID.   
+- For leaf node using standard can frame   
+	Leaf node information is notified using the standard can frame.   
 	![Image](https://github.com/user-attachments/assets/06584d50-ff8f-45db-a5d2-0b07d9c32ce3)
 	![Image](https://github.com/user-attachments/assets/bd52933e-0f21-4bfc-8443-54f9511bfb38)
 
-- For leaf node using standard can   
-	Leaf node information is notified using the extended CAN-ID.   
+- For leaf node using extended can frame   
+	Leaf node information is notified using the extended can frame.   
 	![Image](https://github.com/user-attachments/assets/06584d50-ff8f-45db-a5d2-0b07d9c32ce3)
 	![Image](https://github.com/user-attachments/assets/04806a7d-9fd9-4325-adbd-18ab7b38c912)
 
