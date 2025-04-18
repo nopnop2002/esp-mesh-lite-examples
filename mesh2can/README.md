@@ -37,7 +37,7 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 ```
    +-----------+   +-----------+   +-----------+ 
    | Atmega328 |   |   ESP32   |   |   ESP32   | 
-   |           |   |   MESH    |   | Receiver  | 
+   |           |   | MESH ROOT |   | Receiver  | 
    | Transmit  |   | 21     22 |   | 21    22  | 
    +-----------+   +-----------+   +-----------+ 
      |       |       |       |       |       |   
