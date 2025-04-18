@@ -73,7 +73,7 @@ When you connect the USB cable to the USB port on your Windows machine and build
 Open a new COM port in the terminal software.   
 Input data from the keyboard is sent to all mesh nodes.   
 I used TeraTerm.   
-![Image](https://github.com/user-attachments/assets/6460ecaa-e6a5-4534-b7d2-10de02fefed9)
+![Image](https://github.com/user-attachments/assets/6fbf75bc-3154-4916-8f2b-79558517fee2)
 
 # Using Linux Terminal Software
 When you connect the USB cable to the USB port on your Linux machine and build the firmware, a new /dev/tty device will appear.   
@@ -81,5 +81,5 @@ Open a new tty device in the terminal software.
 Most occasions, the device is /dev/ttyACM0.   
 Input data from the keyboard is sent to all mesh nodes.   
 I used cu.   
-![Image](https://github.com/user-attachments/assets/914e5fbf-6f24-492f-b688-0002ecb0dcfa)
+![Image](https://github.com/user-attachments/assets/6b80f500-e9fa-47f7-b53e-74604dfa455d)
 
