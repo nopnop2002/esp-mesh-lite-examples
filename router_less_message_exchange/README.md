@@ -1,4 +1,4 @@
-# no_router_message_exchange
+# router_less_message_exchange
 esp-mesh-lite allows for network configuration without using a WiFi router.   
 An official sample is available [here](https://github.com/espressif/esp-mesh-lite/tree/master/examples/no_router).   
 The official sample allows you to build a router-less mesh network, but it does not have the ability to exchange data between nodes.   
