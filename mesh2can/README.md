@@ -69,5 +69,5 @@ The following 8 bytes are notified from the leaf node.
 	MAC address of leaf node.
 
 Each leaf node uses a separate CAN-ID.   
-The CAN-ID is specified in the menu.   
+The CAN-ID is configured using menuconfig.   
 ![Image](https://github.com/user-attachments/assets/df1ad5db-9c42-4a1c-919a-b40ab8d21d5d)
