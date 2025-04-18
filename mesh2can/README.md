@@ -27,8 +27,40 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 
 # Hardware requirements
 - At least 2 x ESP32 development boards   
-- A BLE client like a smartphone   
+- SN65HVD23x CAN-BUS Transceiver   
+	SN65HVD23x series has 230/231/232.   
+	They differ in standby/sleep mode functionality.   
+	Other features are the same.   
 - No WiFi router is required.
+
+# Test Circuit
+```
+   +-----------+   +-----------+   +-----------+ 
+   | Atmega328 |   |   ESP32   |   |   ESP32   | 
+   |           |   |   MESH    |   | Receiver  | 
+   | Transmit  |   | 21     22 |   | 21    22  | 
+   +-----------+   +-----------+   +-----------+ 
+     |       |       |       |       |       |   
+   +-----------+     |       |       |       |   
+   |           |     |       |       |       |   
+   |  MCP2515  |     |       |       |       |   
+   |           |     |       |       |       |   
+   +-----------+     |       |       |       |   
+     |       |       |       |       |       |   
+   +-----------+   +-----------+   +-----------+ 
+   |           |   | D       R |   | D       R | 
+   |  MCP2551  |   |   VP230   |   |   VP230   | 
+   | H      L  |   | H      L  |   | H       L | 
+   +-----------+   +-----------+   +-----------+ 
+     |       |       |       |       |       |   
+     +--^^^--+       |       |       +--^^^--+
+     |   R1  |       |       |       |   R2  |   
+ |---+-------|-------+-------|-------+-------|---| BackBorn H
+             |               |               |
+             |               |               |
+             |               |               |
+ |-----------+---------------+---------------+---| BackBorn L
+```
 
 # Installation
 ```
