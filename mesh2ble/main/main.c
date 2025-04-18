@@ -92,6 +92,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 			cJSON_AddNumberToObject(item, "level", esp_mesh_lite_get_level());
 			cJSON_AddNumberToObject(item, "number", sequence_number);
 			cJSON_AddStringToObject(item, "payload", mac_str);
+			cJSON_AddStringToObject(item, "target", CONFIG_IDF_TARGET);
 			esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, item, &esp_mesh_lite_send_msg_to_root);
 #if 0
 			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
@@ -197,29 +198,6 @@ static cJSON* report_info_to_root_ack_process(cJSON *payload, uint32_t seq)
 
 static cJSON* report_info_to_parent_process(cJSON *payload, uint32_t seq)
 {
-	cJSON *found = NULL;
-
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "payload");
-	char *_payload = found->valuestring;
-	printf("[recv from child] level: %d, payload: [%s]\r\n", level, _payload);
-
-#if CONFIG_PRINT_FORMATTED
-	char *my_json_string = cJSON_Print(payload);
-#else
-	char *my_json_string = cJSON_PrintUnformatted(payload);
-#endif
-	ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
-	int json_length = strlen(my_json_string);
-	size_t sended = xMessageBufferSendFromISR(xMessageBufferBle, my_json_string, json_length, NULL);
-	if (sended != json_length) {
-		ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
-	}
-	cJSON_free(my_json_string);
-
-	//esp_mesh_lite_node_info_add was updated to esp_mesh_lite_node_info_update
-	//esp_mesh_lite_node_info_add(level, found->valuestring);
 	return NULL;
 }
 
@@ -230,14 +208,6 @@ static cJSON* report_info_to_parent_ack_process(cJSON *payload, uint32_t seq)
 
 static cJSON* report_info_to_sibling_process(cJSON *payload, uint32_t seq)
 {
-	cJSON *found = NULL;
-
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "payload");
-	char *_payload = found->valuestring;
-	printf("[recv from sibling] level: %d, payload: [%s]\r\n", level, _payload);
-
 	return NULL;
 }
 

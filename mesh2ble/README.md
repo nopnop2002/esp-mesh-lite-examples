@@ -69,7 +69,7 @@ I used [this](https://play.google.com/store/apps/details?id=de.kai_morich.serial
 - Connect to device   
 	You can communicate to mesh-lite root node using android.   
 	Input data from client is sent to all mesh nodes.
-	![Image](https://github.com/user-attachments/assets/219104b8-259d-49b1-9e03-430071191f46)
+	![Image](https://github.com/user-attachments/assets/f48374d2-ea0b-46df-9db1-460178088dbf)
 
 # iOS Application   
 [This](https://apps.apple.com/jp/app/bluetooth-v2-1-spp-setup/id6449416841) might work, but I don't have iOS so I don't know.   
