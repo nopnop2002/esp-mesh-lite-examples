@@ -71,3 +71,13 @@ The following 8 bytes are notified from the leaf node.
 Each leaf node uses a separate CAN-ID.   
 The CAN-ID is configured using menuconfig.   
 ![Image](https://github.com/user-attachments/assets/df1ad5db-9c42-4a1c-919a-b40ab8d21d5d)
+
+
+# CAN data forwarding   
+All CAN messages received by the root node are forwarded to all leaf nodes.   
+	```
+	+-------------+                                      +-------------+          +-------------+
+	|OtherComputer|-----------------CAN----------------->|  Root Node  |---Mesh-->|  Leaf node  |
+	+-------------+                                      +-------------+          +-------------+
+	```
+![Image](https://github.com/user-attachments/assets/7d34231d-4cfa-4772-aa24-c01fabc340a0)
