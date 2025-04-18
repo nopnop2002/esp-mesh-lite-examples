@@ -1,0 +1,116 @@
+menu "Example Configuration"
+
+	config GPIO_RANGE_MAX
+		int
+		default 33 if IDF_TARGET_ESP32
+		default 46 if IDF_TARGET_ESP32S2
+		default 48 if IDF_TARGET_ESP32S3
+		default 18 if IDF_TARGET_ESP32C2
+		default 19 if IDF_TARGET_ESP32C3
+		default 30 if IDF_TARGET_ESP32C6
+
+	config MESH_ROOT
+		select JOIN_MESH_IGNORE_ROUTER_STATUS
+		bool "Root device"
+		default n
+		help
+			Configure the root device type.
+
+	config MESH_CHANNEL
+		int "Mesh network channel"
+		range 1 14
+		default 11
+		help
+			Mesh network channel.
+
+	choice CAN_BITRATE
+		depends on MESH_ROOT
+		prompt "CAN Bitrate"
+		default CAN_BITRATE_500
+		help
+			Select the CAN bitrate for the example.
+		config CAN_BITRATE_25
+			bool "BITRATE_25"
+			help
+				CAN bitrate is 25 Kbit/s.
+		config CAN_BITRATE_50
+			bool "BITRATE_50"
+			help
+				CAN bitrate is 50 Kbit/s.
+		config CAN_BITRATE_100
+			bool "BITRATE_100"
+			help
+				CAN bitrate is 100 Kbit/s.
+		config CAN_BITRATE_125
+			bool "BITRATE_125"
+			help
+				CAN bitrate is 125 Kbit/s.
+		config CAN_BITRATE_250
+			bool "BITRATE_250"
+			help
+				CAN bitrate is 250 Kbit/s.
+		config CAN_BITRATE_500
+			bool "BITRATE_500"
+			help
+				CAN bitrate is 500 Kbit/s.
+		config CAN_BITRATE_800
+			bool "BITRATE_800"
+			help
+				CAN bitrate is 800 Kbit/s.
+		config CAN_BITRATE_1000
+			bool "BITRATE_1000"
+			help
+				CAN bitrate is 1 Mbit/s.
+	endchoice
+
+	config CTX_GPIO
+		depends on MESH_ROOT
+		int "CTX GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 21 if IDF_TARGET_ESP32
+		default 17 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  0 # C3 and others
+		help
+			GPIO number (IOxx) to CTX.
+			Some GPIOs are used for other purposes (flash connections, etc.).
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	config CRX_GPIO
+		depends on MESH_ROOT
+		int "CRX GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 22 if IDF_TARGET_ESP32
+		default 18 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  1 # C3 and others
+		help
+			GPIO number (IOxx) to CRX.
+			Some GPIOs are used for other purposes (flash connections, etc.).
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	choice CAN_FRAME_TYPE
+		depends on !MESH_ROOT
+		prompt "Select CAN Frame type to send"
+		default CAN_STD_FRAME
+		help
+			Select CAN Frame type.
+		config CAN_STD_FRAME
+			bool "Standard frame"
+			help
+				Standard frame 
+		config CAN_EXT_FRAME
+			bool "Extended frame"
+			help
+				Extended frame 
+	endchoice
+
+	config CAN_ID
+		depends on !MESH_ROOT
+		range 0 0x1FF if CAN_STD_FRAME
+		range 0 0x1FFFFFFF if CAN_EXT_FRAME
+		default 0x1FF if CAN_STD_FRAME
+		default 0x1FFFFFFF if CAN_EXT_FRAME
+		hex "CAN ID to send"
+		help
+			CAN ID to send.
+
+endmenu
