@@ -216,38 +216,21 @@ static cJSON* broadcast_process(cJSON *payload, uint32_t seq)
 	static uint32_t last_recv_seq;
 	ESP_LOGD(__FUNCTION__, "last_recv_seq=%"PRIu32" seq=%"PRIu32,last_recv_seq, seq);
 
+	// Receive the same message MAX_RETRY times
+	// Discard duplicate messages
 	if (last_recv_seq != seq) {
-
 		cJSON *found = NULL;
 		found = cJSON_GetObjectItem(payload, "number");
 		uint32_t number = found->valueint;
 		found = cJSON_GetObjectItem(payload, "payload");
-		char *payload = found->valuestring;
-		printf("[recv from root] number: %"PRIu32", payload: [%s]\r\n", number, payload);
+		char *_payload = found->valuestring;
+		printf("[recv from root] number: %"PRIu32", payload: [%s]\r\n", number, _payload);
 
-		cJSON *item = cJSON_CreateObject();
+		cJSON *item = cJSON_Duplicate(payload, true);
 		if (item) {
-			cJSON_AddNumberToObject(item, "number", number);
-			cJSON_AddStringToObject(item, "payload", payload);
-			esp_mesh_lite_try_sending_msg("broadcast", NULL, MAX_RETRY, item, &esp_mesh_lite_send_broadcast_msg_to_child);
-#if 0
-			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
-			esp_mesh_lite_msg_config_t config = {
-				.json_msg = {
-					.send_msg = "broadcast",
-					.expect_msg = NULL,
-					.max_retry = MAX_RETRY,
-					.retry_interval = 1000,
-					.req_payload = item,
-					.resend = &esp_mesh_lite_send_broadcast_msg_to_child,
-					.send_fail = NULL,
-				}
-			};
-			esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
-#endif
+			esp_mesh_lite_try_sending_msg("broadcast", NULL, MAX_RETRY, payload, &esp_mesh_lite_send_broadcast_msg_to_child);
 			cJSON_Delete(item);
 		}
-
 		last_recv_seq = seq;
 	}
 	return NULL;
