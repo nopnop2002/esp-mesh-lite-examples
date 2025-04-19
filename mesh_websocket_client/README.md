@@ -40,6 +40,7 @@ Run ws-server.py on the host side.
 This script accepts requests from multiple clients.   
 However, note that requests from esp-mesh-lite come from a single IP address.   
 ```
+$ python3 -m pip install websockets
 $ python3 ws-server.py
 args.port=8080
 message from ('192.168.10.119', 55525)=(324703) data from 3c:71:bf:9d:bd:00
