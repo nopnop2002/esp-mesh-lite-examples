@@ -42,9 +42,9 @@ However, note that requests from esp-mesh-lite come from a single IP address.
 ```
 $ python3 http-server.py
 args.port=8080
-message from ('192.168.10.119', 56976)=(822241) data from a4:cf:12:05:c6:34
-message from ('192.168.10.119', 55912)=(3867) data from 3c:71:bf:9d:bd:00
-message from ('192.168.10.119', 56977)=(823283) data from a4:cf:12:05:c6:34
-message from ('192.168.10.119', 55913)=(4926) data from 3c:71:bf:9d:bd:00
+message from ('192.168.10.154', 60382)={"level":2,"mac":"24:0a:c4:c5:46:fc","now":242027,"cores":2,"target":"esp32"}
+message from ('192.168.10.154', 55237)={"level":2,"mac":"60:55:f9:79:80:94","now":198881,"cores":1,"target":"esp32c3"}
+message from ('192.168.10.154', 52865)={"level":2,"mac":"10:97:bd:f3:61:f0","now":24747,"cores":1,"target":"esp32c2"}
+message from ('192.168.10.154', 60509)={"level":1,"mac":"80:65:99:ea:ff:00","now":229576,"cores":1,"target":"esp32s2"}
 ```
 

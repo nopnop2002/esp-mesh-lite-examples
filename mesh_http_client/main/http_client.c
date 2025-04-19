@@ -19,6 +19,8 @@
 
 #include "esp_mesh_lite.h"
 #include "esp_http_client.h"
+#include "esp_chip_info.h"
+#include "cJSON.h"
 
 static const char *TAG = "CLIENT";
 
@@ -103,16 +105,29 @@ void http_client(void *pvParameters)
 	// Get station mac address
 	uint8_t sta_mac[6] = {0};
 	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
+	char mac_str[MAC_MAX_LEN];
+	snprintf(mac_str, sizeof(mac_str), MACSTR, MAC2STR(sta_mac));
 
-	char buffer[128];
 	while (1) {
 		TickType_t nowTick = xTaskGetTickCount();
-		int buflen = sprintf(buffer, "(%"PRIu32") data from "MACSTR, nowTick, MAC2STR(sta_mac));
-		ESP_LOGI(TAG, "buffer=[%s]",buffer);
-		//http_post_with_url("http://192.168.10.46:8000", buffer, received);
-		if (http_post_with_url(url, buffer, buflen) != ESP_OK) {
+		cJSON *root;
+		root = cJSON_CreateObject();
+		esp_chip_info_t chip_info;
+		esp_chip_info(&chip_info);
+		cJSON_AddNumberToObject(root, "level", esp_mesh_lite_get_level());
+		cJSON_AddStringToObject(root, "mac", mac_str);
+		cJSON_AddNumberToObject(root, "now", nowTick);
+		cJSON_AddNumberToObject(root, "cores", chip_info.cores);
+		cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
+		//char *json_string = cJSON_Print(root);
+		char *json_string = cJSON_PrintUnformatted(root);
+		int json_length = strlen(json_string);
+		ESP_LOGI(TAG, "json_string\n%s",json_string);
+		if (http_post_with_url(url, json_string, json_length) != ESP_OK) {
 			ESP_LOGE(TAG, "http_post_with_url fail");
 		}
+		cJSON_Delete(root);
+		cJSON_free(json_string);
 		vTaskDelay(1000);
 	}
 
