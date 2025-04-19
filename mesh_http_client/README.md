@@ -70,8 +70,7 @@ python3 -m pip install -U pip
 python3 -m pip install -U wheel
 python3 -m pip install -U Werkzeug
 python3 -m pip install flask
-git clone https://github.com/nopnop2002/esp-idf-can2http
-cd esp-idf-can2http
+cd esp-mesh-lite-examples/mesh_http_client
 cd flask
 python3 main.py
 ```
