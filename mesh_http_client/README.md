@@ -33,7 +33,7 @@ idf.py flash
 # Configuration   
 Set the information of your access point and your HTTP server.   
 ![Image](https://github.com/user-attachments/assets/28ee4b1b-541a-4bc0-9d20-4c70e0e60452)
-![Image](https://github.com/user-attachments/assets/2d84d6d0-742d-457f-8857-8694647e41e5)
+![Image](https://github.com/user-attachments/assets/048573f9-83c6-4c20-9911-69496e9c807b)
 
 # How to use
 Run http-server.py on the host side.   

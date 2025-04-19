@@ -13,13 +13,13 @@ menu "Example Configuration"
 				WiFi password (WPA or WPA2) for the example to use.
 
 	config SERVER_IP
-		string "Server IP address"
+		string "HTTP Server IP address"
 		default "192.168.0.1"
 		help
 			Server IP address.
 
 	config SERVER_PORT
-		int "Server port"
+		int "HTTP Server port"
 		default 8080
 		help
 			Server port.
