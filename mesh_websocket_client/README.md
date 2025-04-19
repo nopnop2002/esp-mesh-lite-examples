@@ -43,9 +43,9 @@ However, note that requests from esp-mesh-lite come from a single IP address.
 $ python3 -m pip install websockets
 $ python3 ws-server.py
 args.port=8080
-message from ('192.168.10.119', 55525)=(324703) data from 3c:71:bf:9d:bd:00
-message from ('192.168.10.119', 57656)=(371897) data from a4:cf:12:05:c6:34
-message from ('192.168.10.119', 55525)=(325709) data from 3c:71:bf:9d:bd:00
-message from ('192.168.10.119', 57656)=(372903) data from a4:cf:12:05:c6:34
+message from ('192.168.10.131', 49219)={"level":1,"mac":"24:0a:c4:c5:46:fc","now":829103,"cores":2,"target":"esp32"}
+message from ('192.168.10.131', 52162)={"level":3,"mac":"60:55:f9:79:80:94","now":203425,"cores":1,"target":"esp32c3"}
+message from ('192.168.10.131', 57941)={"level":3,"mac":"10:97:bd:f3:61:f0","now":9216,"cores":1,"target":"esp32c2"}
+message from ('192.168.10.131', 50741)={"level":2,"mac":"80:65:99:ea:ff:00","now":566530,"cores":1,"target":"esp32s2"}
 ```
 
