@@ -3,9 +3,9 @@
 # Simple REST Server
 
 from flask import Flask, render_template, request
-#from flask import Flask, Response, request
-app = Flask(__name__)
 import json
+
+app = Flask(__name__)
 
 nodeList = []
 
