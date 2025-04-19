@@ -48,3 +48,30 @@ message from ('192.168.10.154', 52865)={"level":2,"mac":"10:97:bd:f3:61:f0","now
 message from ('192.168.10.154', 60509)={"level":1,"mac":"80:65:99:ea:ff:00","now":229576,"cores":1,"target":"esp32s2"}
 ```
 
+# HTTP Server Using Tornado
+```
+cd $HOME
+sudo apt install python3-pip python3-setuptools
+python3 -m pip install -U pip
+python3 -m pip install -U wheel
+python3 -m pip install tornado
+cd esp-mesh-lite-examples/mesh_http_client
+cd tornado
+python3 main.py
+```
+Open your browser and put the Server's IP in the address bar.   
+![Image](https://github.com/user-attachments/assets/53cae944-cac3-44ae-aac0-74440ecaa67f)
+
+# HTTP Server Using Flask
+```
+cd $HOME
+sudo apt install python3-pip python3-setuptools
+python3 -m pip install -U pip
+python3 -m pip install -U wheel
+python3 -m pip install -U Werkzeug
+python3 -m pip install flask
+git clone https://github.com/nopnop2002/esp-idf-can2http
+cd esp-idf-can2http
+cd flask
+python3 main.py
+```

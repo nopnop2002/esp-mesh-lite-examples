@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+	<table cellspacing="2" cellpadding="2" border="1"> <tbody>
+		<tr>
+			<th>level</th>
+			<th>mac</th>
+			<th>now</th>
+			<th>cores</th>
+			<th>target</th>
+		</tr>
+		{% for list in lists %}
+		<tr>
+			{% for item in list %}
+			<td>{{ item }}</td>
+			{% end %}
+		</tr>
+		{% end %}
+	</tbody> </table>
+    </body>
+</html>
