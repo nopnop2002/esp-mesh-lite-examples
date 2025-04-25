@@ -59,6 +59,8 @@ You can try esp-mesh-lite now.
 
 # router_less_message_exchange
 An example of a routerless mesh network that exchanges data between nodes.   
+esp-mesh-lite comes with [this](https://github.com/espressif/esp-mesh-lite/tree/master/examples/no_router) router less example.   
+However, this example does not have communication functionality between nodes.   
 
 # mesh2uart
 esp-mesh-lite and UART/USB gateway application for routerless mesh networks.
