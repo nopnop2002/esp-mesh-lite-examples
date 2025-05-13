@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "esp_log.h"
 #include "esp_mac.h"
 #include "freertos/FreeRTOS.h"
@@ -26,11 +28,23 @@
 #include "esp_mesh_lite.h"
 
 char *MOUNT_POINT = "/root";
-QueueHandle_t xQueue;
+QueueHandle_t xQueueFTP;
+
+static bool wifi_connected = false;
+static bool ftp_client_task = false;
+static char srcFileName[64];
 
 static const char *TAG = "MAIN";
 
+#define MAX_RETRY  5
+
 void ftp_client(void *pvParameters);
+
+#define MESH_LITE_MSG_ID_TO_ROOT 1
+#define MESH_LITE_MSG_ID_TO_ROOT_RESP 2
+#define MESH_LITE_MSG_ID_TO_PARENT 3
+#define MESH_LITE_MSG_ID_TO_PARENT_RESP 4
+#define MESH_LITE_MSG_ID_BROADCAST 5
 
 /**
  * @brief Timed printing system information
@@ -39,19 +53,30 @@ static void print_system_info_timercb(TimerHandle_t timer)
 {
 	uint8_t primary					= 0;
 	uint8_t sta_mac[6]				= {0};
+	uint8_t ap_mac[6]				= {0};
 	wifi_ap_record_t ap_info		= {0};
 	wifi_second_chan_t second		= 0;
 	wifi_sta_list_t wifi_sta_list	= {0x0};
 
 	esp_wifi_sta_get_ap_info(&ap_info);
 	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
+	esp_wifi_get_mac(ESP_IF_WIFI_AP, ap_mac);
 	esp_wifi_ap_get_sta_list(&wifi_sta_list);
 	esp_wifi_get_channel(&primary, &second);
 
+	char buffer[256];
+	snprintf(buffer, sizeof(buffer), 
+		"System information, channel: %d, layer: %d, self mac: " MACSTR ", parent bssid: " MACSTR
+		", parent rssi: %d, free heap: %"PRIu32"", primary,
+		esp_mesh_lite_get_level(), MAC2STR(ap_mac), MAC2STR(ap_info.bssid),
+		(ap_info.rssi != 0 ? ap_info.rssi : -120), esp_get_free_heap_size());
+	ESP_LOGI(TAG, "%s", buffer);
+#if 0
 	ESP_LOGI(TAG, "System information, channel: %d, layer: %d, self mac: " MACSTR ", parent bssid: " MACSTR
-			 ", parent rssi: %d, free heap: %"PRIu32"", primary,
-			 esp_mesh_lite_get_level(), MAC2STR(sta_mac), MAC2STR(ap_info.bssid),
-			 (ap_info.rssi != 0 ? ap_info.rssi : -120), esp_get_free_heap_size());
+		", parent rssi: %d, free heap: %"PRIu32"", primary,
+		esp_mesh_lite_get_level(), MAC2STR(ap_mac), MAC2STR(ap_info.bssid),
+		(ap_info.rssi != 0 ? ap_info.rssi : -120), esp_get_free_heap_size());
+#endif
 #if CONFIG_MESH_LITE_NODE_INFO_REPORT
 	ESP_LOGI(TAG, "All node number: %"PRIu32"", esp_mesh_lite_get_mesh_node_number());
 #endif /* MESH_LITE_NODE_INFO_REPORT */
@@ -59,20 +84,46 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		ESP_LOGI(TAG, "Child mac: " MACSTR, MAC2STR(wifi_sta_list.sta[i].mac));
 	}
 
+	char mac_str[MAC_MAX_LEN];
+	snprintf(mac_str, sizeof(mac_str), MACSTR, MAC2STR(sta_mac));
 	int16_t layer = esp_mesh_lite_get_level();
-	xQueueSendFromISR(xQueue, &layer, NULL);
+	ESP_LOGI(TAG, "layer=%d", layer);
+	if (layer == 1) {
+		sprintf(srcFileName, "%s/mesh-lite.txt", MOUNT_POINT);
+		if (ftp_client_task == false) {
+			ESP_LOGI(TAG, "Start ftp_client task");
+			xTaskCreate(ftp_client, "ftp_client", 6 * 1024, (void *)srcFileName, 5, NULL);
+
+			struct stat stat_buf;
+			if (stat(srcFileName, &stat_buf) == 0) {
+				unlink(srcFileName);
+			}
+			ftp_client_task = true;
+		}
+
+		// Append file
+		FILE* fp = fopen(srcFileName, "a+");
+		if (fp != NULL) {
+			fprintf(fp, "%s\n", buffer);
+			fclose(fp);
+		} else {
+			ESP_LOGE(TAG, "Failed to open file for writing");
+		}
+		xQueueSendFromISR(xQueueFTP, &layer, NULL);
+	} else {
+		ESP_LOGI(TAG, "layer: %d, mac_str: [%s]", layer, mac_str);
+		esp_err_t err = esp_mesh_lite_try_sending_raw_msg(MESH_LITE_MSG_ID_TO_ROOT, 0, 0, (const uint8_t*)buffer,
+			strlen(buffer), esp_mesh_lite_send_raw_msg_to_root);
+		if (err != ESP_OK) {
+			ESP_LOGE(TAG, "esp_mesh_lite_try_sending_raw_msg fail");
+		}
+	}
 }
 
-static void ip_event_sta_got_ip_handler(void *arg, esp_event_base_t event_base,
-										int32_t event_id, void *event_data)
+static void ip_event_sta_got_ip_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-	static bool tcp_task = false;
 	ESP_LOGI(TAG, "ip_event_sta_got_ip_handler");
-	if (!tcp_task) {
-		ESP_LOGI(TAG, "Start ftp_client task");
-		xTaskCreate(ftp_client, "ftp_client", 6 * 1024, NULL, 5, NULL);
-		tcp_task = true;
-	}
+	wifi_connected = true;
 }
 
 static esp_err_t esp_storage_init(void)
@@ -166,6 +217,52 @@ esp_err_t mountSPIFFS(char * partition_label, char * mount_point) {
 	return ret;
 }
 
+static esp_err_t mesh_lite_to_root_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	ESP_LOGI(__FUNCTION__, "seq=%"PRIi32, seq);
+	//ESP_LOG_BUFFER_HEXDUMP(__FUNCTION__, data, len, ESP_LOG_INFO);
+	*out_len = 0;
+
+	// Append file
+	FILE* fp = fopen(srcFileName, "a+");
+	if (fp != NULL) {
+		fprintf(fp, "%.*s\n", (int)len, data);
+		fclose(fp);
+	} else {
+		ESP_LOGE(TAG, "Failed to open file for writing");
+	}
+	return ESP_OK;
+}
+
+static esp_err_t mesh_lite_to_root_resp_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t mesh_lite_to_parent_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t mesh_lite_to_parent_resp_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t mesh_lite_broadcast_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
+	{MESH_LITE_MSG_ID_TO_ROOT, MESH_LITE_MSG_ID_TO_ROOT_RESP, mesh_lite_to_root_handler},
+	{MESH_LITE_MSG_ID_TO_ROOT_RESP, 0, mesh_lite_to_root_resp_handler},
+	{MESH_LITE_MSG_ID_TO_PARENT, MESH_LITE_MSG_ID_TO_PARENT_RESP, mesh_lite_to_parent_handler},
+	{MESH_LITE_MSG_ID_TO_PARENT_RESP, 0, mesh_lite_to_parent_resp_handler},
+	{MESH_LITE_MSG_ID_BROADCAST, 0, mesh_lite_broadcast_handler},
+	{0, 0, NULL}
+};
+
 void app_main()
 {
 	/**
@@ -180,8 +277,8 @@ void app_main()
 	ESP_ERROR_CHECK(mountSPIFFS(partition_label, MOUNT_POINT));
 
 	// Create Queue
-	xQueue = xQueueCreate( 1, sizeof(int16_t) );
-	configASSERT( xQueue );
+	xQueueFTP = xQueueCreate( 1, sizeof(int16_t) );
+	configASSERT( xQueueFTP );
 
 	ESP_ERROR_CHECK(esp_netif_init());
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -195,6 +292,9 @@ void app_main()
 	esp_mesh_lite_config_t mesh_lite_config = ESP_MESH_LITE_DEFAULT_INIT();
 	esp_mesh_lite_init(&mesh_lite_config);
 
+	// Register custom message reception and recovery logic
+	esp_mesh_lite_raw_msg_action_list_register(raw_msgs_action);
+
 	ESP_LOGI(TAG, "app_wifi_set_softap_info");
 	app_wifi_set_softap_info();
 
@@ -205,6 +305,14 @@ void app_main()
 	 * @breif Create handler
 	 */
 	ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_sta_got_ip_handler, NULL, NULL));
+
+	ESP_LOGI(TAG, "Wait for wifi connection");
+	while(1) {
+		ESP_LOGD(TAG, "wifi_connected=%d", wifi_connected);
+		vTaskDelay(100);
+		if (wifi_connected == true) break;
+	}
+	ESP_LOGI(TAG, "Connected to wifi");
 
 	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS, true, NULL, print_system_info_timercb);
 	xTimerStart(timer, 0);

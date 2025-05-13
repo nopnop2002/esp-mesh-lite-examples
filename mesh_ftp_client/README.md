@@ -1,16 +1,11 @@
 # mesh_ftp_client
 FTP client for esp-mesh-lite.   
-Every node acts as an ftp client.   
-All nodes have the same IP address.   
+Root node acts as an ftp client.   
 Messages from leaf nodes are forwarded through the root node.   
 ```
-+----------+               +----------+
-|          |<--(ftp put)---|   root   |
-|          |               |          |
-|ftp server|               |          |
-|          |               |          |               +----------+
-|          |<--(ftp get)---|<---------|<--(ftp get)---|   leaf   |
-+----------+               +----------+               +----------+
++----------+               +-----------+                +-----------+
+|ftp server|<--(ftp put)---| Root Node |<----(Mesh)-----| Leaf Node |
++----------+               +-----------+                +-----------+
 ```
 
 # Software requirements
@@ -50,28 +45,17 @@ The files will be stored for 10 minutes before being deleted.
 # Root node
 The root node stores the file on the FTP server.
 ```
-I (1442286) CLIENT: System information, channel: 11, layer: 1, self mac: a4:cf:12:05:c6:34, parent bssid: f8:b7:97:36:de:52, parent rssi: -58, free heap: 165564
-I (1443513) CLIENT: ftpClientPut /root/mesh-lite.txt ---> mesh-lite.txt
+I (1443513) FTP-CLIENT: ftpClientPut /root/mesh-lite.txt ---> mesh-lite.txt
 ```
 
-# Leaf node
-The leaf node retrieves the file from the FTP server.
-```
-I (65399) CLIENT: ftpClientGet /root/mesh-lite.txt <--- mesh-lite.txt
-I (65401) CLIENT: -----------------------------------------------
-I (65404) CLIENT: System information
-I (65407) CLIENT: channel: 11
-I (65411) CLIENT: layer: 1
-I (65414) CLIENT: self mac: a4:cf:12:05:c6:34
-I (65419) CLIENT: parent bssid: f8:b7:97:36:de:52
-I (65425) CLIENT: parent rssi: -61free heap: 163812
-I (65430) CLIENT: Child mac: 3c:71:bf:9d:bd:00
-I (65435) CLIENT: Child mac: 24:0a:c4:c5:46:fc
-I (65441) CLIENT: -----------------------------------------------
-```
 
-This warning appears when a leaf node retrieves a file while the root node is storing the file.   
+mesh-lite.txt contains information about the root node and leaf node.   
 ```
-I (1973647) CLIENT: ftpClientGet /root/mesh-lite.txt <--- mesh-lite.txt
-W (1973681) CLIENT: Failed to open file for reading
+$ cat mesh-lite.txt
+System information, channel: 1, layer: 1, self mac: a4:cf:12:05:c6:35, parent bssid: f8:b7:97:36:de:52, parent rssi: -53, free heap: 183012
+System information, channel: 1, layer: 1, self mac: a4:cf:12:05:c6:35, parent bssid: f8:b7:97:36:de:52, parent rssi: -60, free heap: 173908
+System information, channel: 1, layer: 2, self mac: c8:c9:a3:cf:10:c5, parent bssid: a4:cf:12:05:c6:35, parent rssi: -38, free heap: 182640
+System information, channel: 1, layer: 1, self mac: a4:cf:12:05:c6:35, parent bssid: f8:b7:97:36:de:52, parent rssi: -60, free heap: 173568
+System information, channel: 1, layer: 2, self mac: 3c:71:bf:9d:bd:01, parent bssid: a4:cf:12:05:c6:35, parent rssi: -47, free heap: 182260
+System information, channel: 1, layer: 2, self mac: c8:c9:a3:cf:10:c5, parent bssid: a4:cf:12:05:c6:35, parent rssi: -33, free heap: 182620
 ```
