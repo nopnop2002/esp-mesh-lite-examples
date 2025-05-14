@@ -59,3 +59,7 @@ System information, channel: 1, layer: 1, self mac: a4:cf:12:05:c6:35, parent bs
 System information, channel: 1, layer: 2, self mac: 3c:71:bf:9d:bd:01, parent bssid: a4:cf:12:05:c6:35, parent rssi: -47, free heap: 182260
 System information, channel: 1, layer: 2, self mac: c8:c9:a3:cf:10:c5, parent bssid: a4:cf:12:05:c6:35, parent rssi: -33, free heap: 182620
 ```
+
+# Known issues   
+Raw data communication does not update the SEQ parameter of the receive handler.   
+This issue will be fixed in MESH-LITE V1.0.2.   
