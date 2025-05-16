@@ -10,6 +10,7 @@ This repository contains example code for esp-mesh-lite that is not in the offic
 # The differences between ESP-MESH-LITE and ESP-MESH
 ESP-MESH is a standard feature of ESP-IDF.   
 An ESP-MESH example is available [here](https://github.com/espressif/esp-idf/tree/master/examples/mesh).   
+ESP-MESH and ESP-MESH-LITE have different architectures.   
 
 The ESP-MESH-LITE documentation is available [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/User_Guide.md).   
 Among them, the following is particularly important:   
