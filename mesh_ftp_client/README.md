@@ -1,7 +1,7 @@
 # mesh_ftp_client
 FTP client for esp-mesh-lite.   
 Root node acts as an ftp client.   
-Messages from leaf nodes are forwarded through the root node.   
+Messages from leaf nodes travel through inter-node communication to reach the root node where they are merged.   
 ```
 +----------+               +-----------+                +-----------+
 |ftp server|<--(ftp put)---| Root Node |<----(Mesh)-----| Leaf Node |
