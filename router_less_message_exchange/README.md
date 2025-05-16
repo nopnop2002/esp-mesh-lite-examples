@@ -70,6 +70,7 @@ Whe json_broadcast_handler() receives data, there is no response.
 
 A message of type "json_id_to_root" indicates that it will be notified to json_to_root_handler().   
 When json_to_root_handler() receives data, it responds with "json_id_to_root_ack".   
+A message of type "json_id_to_root_ack" indicates that it will be notified to json_to_root_ack_handler().
 ```
 +----------+                         +----------+
 |   root   |<---(json_id_to_root)----|   leaf   |
