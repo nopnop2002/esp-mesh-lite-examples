@@ -31,7 +31,7 @@ One device must be configured as the root node and the other devices as leaf nod
 ![Image](https://github.com/user-attachments/assets/28ee4b1b-541a-4bc0-9d20-4c70e0e60452)
 ![Image](https://github.com/user-attachments/assets/28cef279-6672-486e-bd79-1448451e1fec)
 
-You can select JSON format or RAW format.
+You can select JSON format or RAW format.   
 ![Image](https://github.com/user-attachments/assets/cac6c9ed-b503-4beb-b960-d01f98d0a8ea)
 
 
