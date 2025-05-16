@@ -58,8 +58,26 @@ typedef struct esp_mesh_lite_msg_action {
 ```
 
 This project defines the following receive callbacks:   
-A message of type "broadcast" indicates that it will be notified to broadcast_process().   
-A message of type "report_info_to_root" indicates that it will be notified to report_info_to_root_process().   
+A message of type "json_id_broadcast" indicates that it will be notified to json_broadcast_handler().   
+Whe json_broadcast_handler() receives data, there is no response.   
+```
++----------+                         +----------+
+|   root   |---(json_id_broadcast)-->|   leaf   |
+|          |                         |          |
++----------+                         +----------+
+```
+
+
+A message of type "json_id_to_root" indicates that it will be notified to json_to_root_handler().   
+When json_to_root_handler() receives data, it responds with "json_id_to_root_ack".   
+```
++----------+                         +----------+
+|   root   |<---(json_id_to_root)----|   leaf   |
+|          |--(json_id_to_root_ack)->|          |
++----------+                         +----------+
+```
+
+
 ```
 static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
     /* Send JSON to the all node */
@@ -103,8 +121,6 @@ typedef struct esp_mesh_lite_raw_msg_action {
 ```
 
 This project defines the following receive callbacks:   
-A message of type "broadcast" indicates that it will be notified to broadcast_process().   
-A message of type "report_info_to_root" indicates that it will be notified to report_info_to_root_process().   
 
 ```
 static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
