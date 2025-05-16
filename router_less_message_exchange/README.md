@@ -164,9 +164,6 @@ I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_c
 E (4297913) bridge_wifi: STA Disconnect to the AP
 ```
 
-
-For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h).   
-
 # AES encryption   
 Communication between nodes within a Mesh network can be encrypted with AES128 using esp_mesh_lite_aes_set_key.   
 ```
@@ -180,3 +177,7 @@ Communication between nodes within a Mesh network can be encrypted with AES128 u
 
     esp_mesh_lite_start();
 ```
+
+# More information   
+For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h).   
+
