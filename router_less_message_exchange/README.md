@@ -29,49 +29,22 @@ idf.py flash
 # Configuration   
 One device must be configured as the root node and the other devices as leaf nodes.   
 ![Image](https://github.com/user-attachments/assets/28ee4b1b-541a-4bc0-9d20-4c70e0e60452)
-![Image](https://github.com/user-attachments/assets/8fe1e1f7-25ef-478f-995f-4edbc4877df3)
+![Image](https://github.com/user-attachments/assets/28cef279-6672-486e-bd79-1448451e1fec)
 
-# Root node logging
-The root node notifies the leaf nodes of the message sequence number and the MAC address of the root node.   
-```
-I (2951207) no_router: System information, channel: 11, layer: 1, self mac: a4:cf:12:05:c6:34, parent bssid: 00:00:00:00:00:00, parent rssi: -120, free heap: 201300
-I (2951212) no_router: Child mac: 3c:71:bf:9d:bd:00
-I (2951217) no_router: Child mac: 24:0a:c4:c5:46:fc
-1: 2, 24:0a:c4:c5:46:fc, 192.168.5.3
-2: 2, 3c:71:bf:9d:bd:00, 192.168.5.2
-3: 1, a4:cf:12:05:c6:34, 0.0.0.0
-[send to broadcast] number: 303, mac=a4:cf:12:05:c6:34
-[recv from child] level: 2, number=35, mac: 3c:71:bf:9d:bd:00
-[recv from child] level: 2, number=37, mac: 24:0a:c4:c5:46:fc
-```
-
-
-# Leaf node logging
-The leaf node notifies the root node of the layer, message sequence number, and the MAC address of the leaf node.
-```
-I (311192) no_router: System information, channel: 11, layer: 2, self mac: 24:0a:c4:c5:46:fc, parent bssid: a4:cf:12:05:c6:35, parent rssi: -79, free heap: 205568
-1: 1, a4:cf:12:05:c6:34, 0.0.0.0
-2: 2, 3c:71:bf:9d:bd:00, 192.168.5.2
-3: 2, 24:0a:c4:c5:46:fc, 192.168.5.3
-[send to root] level: 2, number: 37, mac: 24:0a:c4:c5:46:fc
-[recv from root] number: 303, mac: a4:cf:12:05:c6:34
-```
+You can select JSON format or RAW format.
+![Image](https://github.com/user-attachments/assets/cac6c9ed-b503-4beb-b960-d01f98d0a8ea)
 
 
 # Reference
-To communicate between nodes, use one of the following functions:
-- esp_mesh_lite_send_msg   
-	https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h#L1032
+To communicate between nodes, use these functions:
 
-- esp_mesh_lite_try_sending_msg   
-	https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h#L1049
-
-
-Mesh-Lite supports the following intra-node communications:
-- esp_mesh_lite_send_broadcast_msg_to_child()
-- esp_mesh_lite_send_broadcast_msg_to_parent()
-- esp_mesh_lite_send_msg_to_root()
-- esp_mesh_lite_send_msg_to_parent()
+## JSON FORMAT
+esp_mesh_lite_try_sending_msg/esp_mesh_lite_try_sending_msg_with_retry_inerval   
+The function pointer for sending a message is one of the following:   
+- esp_mesh_lite_send_broadcast_msg_to_child()   
+- esp_mesh_lite_send_broadcast_msg_to_parent()   
+- esp_mesh_lite_send_msg_to_root()   
+- esp_mesh_lite_send_msg_to_parent()   
 
 The sent message will be received by a callback function.   
 The callback function is defined using ```esp_mesh_lite_msg_action_list_register()```.   
@@ -88,25 +61,84 @@ typedef struct esp_mesh_lite_msg_action {
 This project defines the following receive callbacks:   
 A message of type "broadcast" indicates that it will be notified to broadcast_process().   
 A message of type "report_info_to_root" indicates that it will be notified to report_info_to_root_process().   
-
 ```
-static const esp_mesh_lite_msg_action_t node_report_action[] = {
-    {"broadcast", NULL, broadcast_process},
+static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
+    /* Send JSON to the all node */
+    {"json_id_broadcast", NULL, json_broadcast_handler},
 
-    /* Report information to the sibling node */
-    {"report_info_to_sibling", NULL, report_info_to_sibling_process},
+    /* Send JSON to the sibling node */
+    {"json_id_to_sibling", NULL, json_to_sibling_handler},
 
-    /* Report information to the root node */
-    {"report_info_to_root", "report_info_to_root_ack", report_info_to_root_process},
-    {"report_info_to_root_ack", NULL, report_info_to_root_ack_process},
+    /* Send JSON to the root node */
+    {"json_id_to_root", "json_id_to_root_ack", json_to_root_handler},
+    {"json_id_to_root_ack", NULL, json_to_root_ack_handler},
 
-    /* Report information to the root node */
-    {"report_info_to_parent", "report_info_to_parent_ack", report_info_to_parent_process},
-    {"report_info_to_parent_ack", NULL, report_info_to_parent_ack_process},
+    /* Send JSON to the parent node */
+    {"json_id_to_parent", "json_id_to_parent_ack", json_to_parent_handler},
+    {"json_id_to_parent_ack", NULL, json_to_parent_ack_handler},
 
     {NULL, NULL, NULL} /* Must be NULL terminated */
 };
 ```
+
+
+## RAW FORMAT
+esp_mesh_lite_try_sending_raw_msg/esp_mesh_lite_try_sending_raw_msg_with_retry_inerval   
+The function pointer for sending a message is one of the following:   
+- esp_mesh_lite_send_broadcast_raw_msg_to_child()   
+- esp_mesh_lite_send_broadcast_raw_msg_to_parent()   
+- esp_mesh_lite_send_raw_msg_to_root()   
+- esp_mesh_lite_send_raw_msg_to_parent()   
+
+The sent message will be received by a callback function.   
+The callback function is defined using ```esp_mesh_lite_raw_msg_action_list_register()```.   
+The callback function definition follows this format:   
+```
+typedef struct esp_mesh_lite_raw_msg_action {
+    uint32_t msg_id;                  /**< The ID of the raw message sent */
+    uint32_t resp_msg_id;             /**< The ID of the response message expected to be received. When a message with the expected ID is received, stop retransmitting.
+                                       If set to 0, the message will be sent until the maximum number of retransmissions is reached. */
+    raw_msg_process_cb_t raw_process; /**< The callback function when receiving the raw message. The raw message data can be processed in this callback. */
+} esp_mesh_lite_raw_msg_action_t;
+```
+
+This project defines the following receive callbacks:   
+A message of type "broadcast" indicates that it will be notified to broadcast_process().   
+A message of type "report_info_to_root" indicates that it will be notified to report_info_to_root_process().   
+
+```
+static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
+    /* Send RAW to the all node */
+    {RAW_MSG_ID_BROADCAST, 0, raw_broadcast_handler},
+
+    /* Send RAW to the sibling node */
+    {RAW_MSG_ID_TO_SIBLING, 0, raw_to_sibling_handler},
+
+    /* Send RAW to the root node */
+    {RAW_MSG_ID_TO_ROOT, RAW_MSG_ID_TO_ROOT_RESP, raw_to_root_handler},
+    {RAW_MSG_ID_TO_ROOT_RESP, 0, raw_to_root_resp_handler},
+
+    /* Send RAW to the parent node */
+    {RAW_MSG_ID_TO_PARENT, RAW_MSG_ID_TO_PARENT_RESP, raw_to_parent_handler},
+    {RAW_MSG_ID_TO_PARENT_RESP, 0, raw_to_parent_resp_handler},
+
+    {0, 0, NULL} /* Must be NULL terminated */
+};
+```
+
+## Child root loss
+If communication from a child node is lost for a certain period of time, the child node is determined to be lost.   
+```
+W (4296140) wifi:inactive timer: now=713bb last_rx_time=ee0e5bf3 diff=499c8, aid[2]3c:71:bf:9d:bd:00 leave
+I (4296164) wifi:station: 3c:71:bf:9d:bd:00 leave, AID = 2, reason = 4, bss_flags is 753779, bss:0x3ffd22dc
+I (4296165) wifi:new:<11,2>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
+E (4296171) bridge_wifi: STA Disconnect to the AP
+W (4297880) wifi:inactive timer: now=21a180 last_rx_time=ee2ea74b diff=49850, aid[1]c8:c9:a3:cf:10:c4 leave
+I (4297905) wifi:station: c8:c9:a3:cf:10:c4 leave, AID = 1, reason = 4, bss_flags is 753779, bss:0x3ffba868
+I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
+E (4297913) bridge_wifi: STA Disconnect to the AP
+```
+
 
 For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h).   
 
