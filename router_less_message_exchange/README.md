@@ -37,7 +37,7 @@ You can select JSON format or RAW format.
 
 
 # JSON FORMAT   
-To communicate between nodes, use these functions:   
+To send data to other nodes, use the following function:   
 ```esp_mesh_lite_try_sending_msg()``` or ```esp_mesh_lite_try_sending_msg_with_retry_inerval()```   
 The function pointer for sending a message is one of the following:   
 - esp_mesh_lite_send_broadcast_msg_to_child()   
@@ -81,8 +81,8 @@ static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
 ```
 
 
-# RAW FORMAT
-To communicate between nodes, use these functions:   
+# RAW FORMAT   
+To send data to other nodes, use the following function:   
 ```esp_mesh_lite_try_sending_raw_msg()``` or ```esp_mesh_lite_try_sending_raw_msg_with_retry_inerval()```   
 The function pointer for sending a message is one of the following:   
 - esp_mesh_lite_send_broadcast_raw_msg_to_child()   
