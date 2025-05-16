@@ -167,3 +167,16 @@ E (4297913) bridge_wifi: STA Disconnect to the AP
 
 For more information, see [here](https://github.com/espressif/esp-mesh-lite/blob/master/components/mesh_lite/include/esp_mesh_lite_core.h).   
 
+# AES encryption   
+Communication between nodes within a Mesh network can be encrypted with AES128 using esp_mesh_lite_aes_set_key.   
+```
+    esp_mesh_lite_config_t mesh_lite_config = ESP_MESH_LITE_DEFAULT_INIT();
+    esp_mesh_lite_init(&mesh_lite_config);
+
+    app_wifi_set_softap_info();
+
+    //attention this function must be called before Mesh-Lite initialization.
+    esp_mesh_lite_aes_set_key(key, 128);
+
+    esp_mesh_lite_start();
+```
