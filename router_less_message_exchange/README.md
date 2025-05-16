@@ -126,8 +126,8 @@ static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
 };
 ```
 
-## Child root loss
-If communication from a child node is lost for a certain period of time, the child node is determined to be lost.   
+# Loss of a leaf node   
+If communication from a leaf node is lost for a certain period of time, the leaf node is determined to be lost.   
 ```
 W (4296140) wifi:inactive timer: now=713bb last_rx_time=ee0e5bf3 diff=499c8, aid[2]3c:71:bf:9d:bd:00 leave
 I (4296164) wifi:station: 3c:71:bf:9d:bd:00 leave, AID = 2, reason = 4, bss_flags is 753779, bss:0x3ffd22dc
