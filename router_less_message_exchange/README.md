@@ -175,7 +175,7 @@ Communication between nodes within a Mesh network can be encrypted with AES128 u
 
     app_wifi_set_softap_info();
 
-    //attention this function must be called before Mesh-Lite initialization.
+    //this function must be called before Mesh-Lite initialization.
     esp_mesh_lite_aes_set_key(key, 128);
 
     esp_mesh_lite_start();
