@@ -1,5 +1,7 @@
 # esp-mesh-lite-examples
-esp-mesh-lite is available [here](https://github.com/espressif/esp-mesh-lite).   
+The release version of esp-mesh-lite is available [here](https://components.espressif.com/).   
+A development version of esp-mesh-lite is available [here](https://github.com/espressif/esp-mesh-lite).   
+
 You can create a wide-area mesh network.   
 The official repository comes with some example code.   
 The official examples are very helpful when creating an application for esp-mesh-lite.   
