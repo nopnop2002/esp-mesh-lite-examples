@@ -42,8 +42,12 @@ To send data to other nodes, use the following function:
 The function pointer for sending a message is one of the following:   
 - esp_mesh_lite_send_broadcast_msg_to_child()   
 - esp_mesh_lite_send_broadcast_msg_to_parent()   
+	The parent node's application layer callback will NOT receive the message,   
+	but other child nodes under the same parent will receive it   
 - esp_mesh_lite_send_msg_to_root()   
 - esp_mesh_lite_send_msg_to_parent()   
+	Only the parent node will receive the message.   
+	The sender's direct parent can process the message in its application layer callback.   
 
 The sent message will be received by a callback function.   
 The callback function is defined using ```esp_mesh_lite_msg_action_list_register()```.   
