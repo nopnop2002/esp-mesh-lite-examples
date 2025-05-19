@@ -46,7 +46,7 @@ The function pointer for sending a message is one of the following:
 	The child node's receive handler must forward the message to further child nodes.   
 - esp_mesh_lite_send_broadcast_msg_to_parent()   
 	The parent node's application layer callback will NOT receive the message,   
-	but other child nodes under the same parent will receive it   
+	but other child nodes under the same parent (=sibling node) will receive it.   
 - esp_mesh_lite_send_msg_to_root()   
 	Only the root node will receive the message.   
 - esp_mesh_lite_send_msg_to_parent()   
