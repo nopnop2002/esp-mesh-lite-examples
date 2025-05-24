@@ -35,6 +35,11 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 - If you use the USB interface, a USB connector   
 	I used this connector:
 	![usb-connector](https://user-images.githubusercontent.com/6020549/124848149-3714ba00-dfd7-11eb-8344-8b120790c5c5.JPG)
+
+	We can buy this breakout on Ebay or AliExpress.   
+	![usb-conector-11](https://github.com/user-attachments/assets/848998d4-fb0c-4b4f-97ae-0b3ae8b8996a)
+	![usb-conector-12](https://github.com/user-attachments/assets/6fc34dcf-0b13-4233-8c71-07234e8c6d06)
+
 	```
 	ESP32-S2/S3 BOARD          USB CONNECTOR
 	                           +--+
