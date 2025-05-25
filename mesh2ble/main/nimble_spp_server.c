@@ -276,7 +276,8 @@ static int	ble_svc_gatt_handler(uint16_t conn_handle, uint16_t attr_handle, stru
 
 	case BLE_GATT_ACCESS_OP_WRITE_CHR:
 		ESP_LOGI(__FUNCTION__, "Data received in write event,conn_handle = %x,attr_handle = %x", conn_handle, attr_handle);
-		ESP_LOGI(__FUNCTION__, "Data received in write event,ctxt->om->om_data = [%s]",ctxt->om->om_data);
+		ESP_LOGI(__FUNCTION__, "ctxt->om->om_len=%d", ctxt->om->om_len);
+		ESP_LOGI(__FUNCTION__, "ctxt->om->om_data=[%.*s]", ctxt->om->om_len, ctxt->om->om_data);
 		ESP_LOG_BUFFER_HEXDUMP(__FUNCTION__, ctxt->om->om_data, strlen((char *)ctxt->om->om_data), ESP_LOG_INFO);
 
 		char rx_buffer[BUF_SIZE+1];
