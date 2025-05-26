@@ -85,3 +85,13 @@ a4:cf:12:05:c6:34>I (26048) MAIN: TCP write, size=83 ret=83
 # View Logging using Windows Application
 We can also use [this](https://apps.microsoft.com/detail/9p4nn1x0mmzr?hl=ja-JP&gl=JP) as Logging Viewer.   
 ![Image](https://github.com/user-attachments/assets/4405c2c9-c1e9-4afb-91af-6bd31e68b5ad)
+
+
+# API
+```
+    // Start remote logging
+    esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
+    char mac[20];
+    snprintf(mac, sizeof(mac), MACSTR, MAC2STR(sta_mac));
+    remote_logging_init(mac, 1);
+```
