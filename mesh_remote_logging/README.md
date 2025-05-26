@@ -90,7 +90,7 @@ We can also use [this](https://apps.microsoft.com/detail/9p4nn1x0mmzr?hl=ja-JP&g
 # Using linux rsyslogd as logger   
 We can forward logging to rsyslogd on Linux machine.   
 Configure with port number = 514.   
-![Image](https://github.com/user-attachments/assets/7d7c6cc2-2f58-40ec-8a3d-afbc80305403)
+![Image](https://github.com/user-attachments/assets/54726250-0ba1-4277-b40c-5fbae9ae592b)
 
 The rsyslog server on linux can receive logs from outside.   
 Execute the following command on the Linux machine that will receive the logging data.   
