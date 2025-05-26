@@ -87,6 +87,90 @@ a4:cf:12:05:c6:34>I (26048) MAIN: TCP write, size=83 ret=83
 We can also use [this](https://apps.microsoft.com/detail/9p4nn1x0mmzr?hl=ja-JP&gl=JP) as Logging Viewer.   
 ![Image](https://github.com/user-attachments/assets/f824e93e-33d6-49d2-9e8e-f07a33e37ebc)
 
+# Using linux rsyslogd as logger   
+We can forward logging to rsyslogd on Linux machine.   
+Configure with protocol = UDP and port number = 514.   
+![Image](https://github.com/user-attachments/assets/7d7c6cc2-2f58-40ec-8a3d-afbc80305403)
+
+The rsyslog server on linux can receive logs from outside.   
+Execute the following command on the Linux machine that will receive the logging data.   
+Please note that port 22 will be closed when you enable ufw.   
+I used Ubuntu 22.04.   
+
+```
+$ cd /etc/rsyslog.d/
+
+$ sudo vi 99-remote.conf
+module(load="imudp")
+input(type="imudp" port="514")
+
+if $fromhost-ip != '127.0.0.1' and $fromhost-ip != 'localhost' then {
+    action(type="omfile" file="/var/log/remote")
+    stop
+}
+
+$ sudo ufw enable
+Firewall is active and enabled on system startup
+
+$ sudo ufw allow 514/udp
+Rule added
+Rule added (v6)
+
+$ sudo ufw allow 22/tcp
+Rule added
+Rule added (v6)
+
+$ sudo systemctl restart rsyslog
+
+$ ss -nulp | grep 514
+UNCONN 0      0            0.0.0.0:514        0.0.0.0:*
+UNCONN 0      0               [::]:514           [::]:*
+
+$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+514/udp                    ALLOW       Anywhere
+22/tcp                     ALLOW       Anywhere
+514/udp (v6)               ALLOW       Anywhere (v6)
+22/tcp (v6)                ALLOW       Anywhere (v6)
+```
+
+Logging from esp-idf goes to /var/log/remote.   
+```
+$ tail -f /var/log/remote
+May 27 08:45:16 192.168.10.111 a4: cf:12:05:c6:34>I (36117) MAIN: TCP write, size=83 ret=83
+May 27 08:45:19 192.168.10.111 a4: cf:12:05:c6:34>I (39120) MAIN: TCP write, size=83 ret=83
+May 27 08:45:22 192.168.10.111 a4: cf:12:05:c6:34>I (42122) MAIN: TCP write, size=83 ret=83
+May 27 08:45:25 192.168.10.111 a4: cf:12:05:c6:34>I (45125) MAIN: TCP write, size=83 ret=83
+May 27 08:45:53 192.168.10.113 c8: c9:a3:cf:10:c4>I (4725) MAIN: TCP client write task is running
+May 27 08:45:54 192.168.10.113 c8: c9:a3:cf:10:c4>I (5230) MAIN: Create a tcp client, ip: 192.168.10.46, port: 8070
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>I (6405) wifi:
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>new:<1,1>, old:<1,1>, ap:<1,1>, sta:<1,0>, prof:1, snd_ch_cfg:0x0
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>I (6407) wifi:
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>station: 3c:71:bf:9d:bd:00 join, AID=1, bgn, 40U
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>I (6448) bridge_wifi: STA Connecting to the AP again...
+May 27 08:45:55 192.168.10.113 c8: c9:a3:cf:10:c4>I (6521) esp_netif_lwip: DHCP server assigned IP to a client, IP is: 192.168.5.2
+May 27 08:45:56 192.168.10.113 3c: 71:bf:9d:bd:00>I (4558) MAIN: TCP client write task is running
+May 27 08:45:57 192.168.10.113 3c: 71:bf:9d:bd:00>I (5062) MAIN: Create a tcp client, ip: 192.168.10.46, port: 8070
+May 27 08:45:57 192.168.10.113 c8: c9:a3:cf:10:c4>I (8243) MAIN: TCP write, size=83 ret=83
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>I (9033) wifi:
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>new:<1,1>, old:<1,1>, ap:<1,1>, sta:<1,0>, prof:1, snd_ch_cfg:0x0
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>I (9036) wifi:
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>station: a4:cf:12:05:c6:34 join, AID=2, bgn, 40U
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>I (9167) bridge_wifi: STA Connecting to the AP again...
+May 27 08:45:58 192.168.10.113 c8: c9:a3:cf:10:c4>I (9204) esp_netif_lwip: DHCP server assigned IP to a client, IP is: 192.168.5.3
+May 27 08:45:59 192.168.10.113 a4: cf:12:05:c6:34>I (17442) MAIN: TCP client write task is running
+May 27 08:45:59 192.168.10.113 a4: cf:12:05:c6:34>I (17946) MAIN: Create a tcp client, ip: 192.168.10.46, port: 8070
+May 27 08:46:00 192.168.10.113 3c: 71:bf:9d:bd:00>I (8074) MAIN: TCP write, size=83 ret=83
+May 27 08:46:00 192.168.10.113 c8: c9:a3:cf:10:c4>I (11246) MAIN: TCP write, size=83 ret=83
+May 27 08:46:02 192.168.10.113 a4: cf:12:05:c6:34>I (20962) MAIN: TCP write, size=83 ret=83
+```
 
 # API
 ```
