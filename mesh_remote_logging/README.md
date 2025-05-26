@@ -85,7 +85,7 @@ a4:cf:12:05:c6:34>I (26048) MAIN: TCP write, size=83 ret=83
 
 # View Logging using Windows Application
 We can also use [this](https://apps.microsoft.com/detail/9p4nn1x0mmzr?hl=ja-JP&gl=JP) as Logging Viewer.   
-![Image](https://github.com/user-attachments/assets/4405c2c9-c1e9-4afb-91af-6bd31e68b5ad)
+![Image](https://github.com/user-attachments/assets/f824e93e-33d6-49d2-9e8e-f07a33e37ebc)
 
 
 # API
