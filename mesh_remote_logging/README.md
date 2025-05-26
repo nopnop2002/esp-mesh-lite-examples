@@ -1,5 +1,6 @@
 # mesh_remote_logging
 ESP-MESH-LITE logging is displayed on STDOUT of each node.   
+When troubleshooting, you need to collect logging from all nodes.   
 This project displays logging from all nodes in one place.   
 This project is based on [this](https://github.com/espressif/esp-mesh-lite/tree/master/examples/mesh_local_control) official example.   
 This project acts as a TCP client, just like the official example.   
