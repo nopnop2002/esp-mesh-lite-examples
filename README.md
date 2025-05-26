@@ -1,5 +1,5 @@
 # esp-mesh-lite-examples
-The release version of esp-mesh-lite is available [here](https://components.espressif.com/).   
+The release version of esp-mesh-lite is available [here](https://components.espressif.com/components/espressif/mesh_lite/).   
 A development version of esp-mesh-lite is available [here](https://github.com/espressif/esp-mesh-lite).   
 
 You can create a wide-area mesh network.   
