@@ -1,0 +1,39 @@
+menu "Example Configuration"
+
+config ROUTER_SSID
+    string "Router SSID"
+        default "ROUTER_SSID"
+        help
+            Router SSID.
+
+config ROUTER_PASSWORD
+    string "Router password"
+        default "ROUTER_PASSWORD"
+        help
+            Router password.
+
+config TCP_SERVER_IP
+    string "TCP Server IP address"
+        default "192.168.0.1"
+        help
+            TCP Server IP address.
+
+config TCP_SERVER_PORT
+    int "TCP Server port"
+        default "8070"
+        help
+            TCP Server port.
+
+config LOGGING_SERVER_IP
+    string "LOGGING Server IP address"
+        default "192.168.0.1"
+        help
+            LOGGING Server IP address.
+
+config LOGGING_SERVER_PORT
+    int "LOGGING Server port"
+        default "8090"
+        help
+            LOGGING Server port.
+
+endmenu
