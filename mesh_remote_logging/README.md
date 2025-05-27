@@ -94,7 +94,7 @@ Configure with port number = 514.
 
 The rsyslog server on linux can receive logs from outside.   
 Execute the following command on the Linux machine that will receive the logging data.   
-Please note that port 22 will be closed when you enable ufw.   
+Please note that enabling ufw will close port 22 and you will lose remote connections.   
 I used Ubuntu 22.04.   
 
 ```
