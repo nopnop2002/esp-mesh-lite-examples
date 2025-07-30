@@ -102,11 +102,6 @@ static void print_system_info_timercb(TimerHandle_t timer)
 
 	} else {
 
-		// Sending messages from all leaves to the root
-		// esp_mesh_lite_try_sending_msg("report_info_to_root")
-		//	 -->report_info_to_root_process()
-		//	 -->report_info_to_root_ack()
-		//	 When a message of the expected type is received, stop retransmitting.
 		cJSON *root = cJSON_CreateObject();
 		if (root) {
 			cJSON_AddNumberToObject(root, "level", esp_mesh_lite_get_level());
@@ -116,13 +111,11 @@ static void print_system_info_timercb(TimerHandle_t timer)
 			char *my_json_string = cJSON_PrintUnformatted(root);
 			printf("[send to root] %s\n", my_json_string);
 			cJSON_free(my_json_string);
-			esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root);
-#if 0
 			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
 			esp_mesh_lite_msg_config_t config = {
 				.json_msg = {
-					.send_msg = "report_info_to_root",
-					.expect_msg = "report_info_to_root_ack",
+					.send_msg = "json_id_to_root",
+					.expect_msg = "json_id_to_root_ack",
 					.max_retry = MAX_RETRY,
 					.retry_interval = 1000,
 					.req_payload = root,
@@ -130,8 +123,10 @@ static void print_system_info_timercb(TimerHandle_t timer)
 					.send_fail = NULL,
 				}
 			};
-			esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
-#endif
+			esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+			if (err != ESP_OK) {
+				ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
+			}
 			cJSON_Delete(root);
 			sequence_number++;
 		}
@@ -184,9 +179,39 @@ void app_wifi_set_softap_info(void)
 }
 
 // https://gist.github.com/tswen/25d2054e868ef2b6c798a3ca05f77c7f
-static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
+static cJSON* json_broadcast_handler(cJSON *payload, uint32_t seq)
 {
-	ESP_LOGI(__FUNCTION__, "seq=%"PRIi32, seq);
+	ESP_LOGD(__FUNCTION__, "seq=%"PRIi32, seq);
+	static uint32_t last_recv_seq = 0;
+	// The same message will be received MAX_RETRY times, so if it is the same message, it will be discarded.
+	if (last_recv_seq != seq) {
+		char *my_json_string = cJSON_PrintUnformatted(payload);
+		printf("[recv from root] %s\n", my_json_string);
+		cJSON_free(my_json_string);
+		// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
+		esp_mesh_lite_msg_config_t config = {
+			.json_msg = {
+				.send_msg = "json_id_broadcast",
+				.expect_msg = NULL,
+				.max_retry = MAX_RETRY,
+				.retry_interval = 1000,
+				.req_payload = payload,
+				.resend = &esp_mesh_lite_send_broadcast_msg_to_child,
+				.send_fail = NULL,
+			}
+		};
+		esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+		if (err != ESP_OK) {
+			ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
+		}
+		last_recv_seq = seq;
+	}
+	return NULL;
+}
+
+static cJSON* json_to_root_handler(cJSON *payload, uint32_t seq)
+{
+	ESP_LOGD(__FUNCTION__, "seq=%"PRIi32, seq);
 	char *my_json_string = cJSON_PrintUnformatted(payload);
 	printf("[recv from child] %s\n", my_json_string);
 	cJSON_free(my_json_string);
@@ -203,69 +228,43 @@ static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
 		ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
 	}
 	cJSON_free(my_json_string);
-
 	return NULL;
 }
 
-static cJSON* report_info_to_root_ack_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_root_ack_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_parent_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_parent_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_parent_ack_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_parent_ack_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_sibling_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_sibling_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* broadcast_process(cJSON *payload, uint32_t seq)
-{
-	static uint32_t last_recv_seq;
-	ESP_LOGD(__FUNCTION__, "last_recv_seq=%"PRIu32" seq=%"PRIu32,last_recv_seq, seq);
+static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
+	/* Send JSON to the all node */
+	{"json_id_broadcast", NULL, json_broadcast_handler},
 
-	// Receive the same message MAX_RETRY times
-	// Discard duplicate messages
-	if (last_recv_seq != seq) {
-		char *my_json_string = cJSON_PrintUnformatted(payload);
-		printf("[recv from root] %s\n", my_json_string);
-		cJSON_free(my_json_string);
-		esp_mesh_lite_try_sending_msg("broadcast", NULL, MAX_RETRY, payload, &esp_mesh_lite_send_broadcast_msg_to_child);
-		last_recv_seq = seq;
-	}
-	return NULL;
-}
+	/* Send JSON to the sibling node */
+	{"json_id_to_sibling", NULL, json_to_sibling_handler},
 
-#if 0
-typedef struct esp_mesh_lite_msg_action {
-	const char* type;		  /**< The type of message sent */
-	const char* rsp_type;	  /**< The message type expected to be received. When a message of the expected type is received, stop retransmitting.
-								If set to NULL, it will be sent until the maximum number of retransmissions is reached. */
-	msg_process_cb_t process; /**< The callback function when receiving the 'type' message. The cjson information in the type message can be processed in this cb. */
-} esp_mesh_lite_msg_action_t;
-#endif
+	/* Send JSON to the root node */
+	{"json_id_to_root", "json_id_to_root_ack", json_to_root_handler},
+	{"json_id_to_root_ack", NULL, json_to_root_ack_handler},
 
-static const esp_mesh_lite_msg_action_t node_report_action[] = {
-	{"broadcast", NULL, broadcast_process},
-
-	/* Report information to the sibling node */
-	{"report_info_to_sibling", NULL, report_info_to_sibling_process},
-
-	/* Report information to the root node */
-	{"report_info_to_root", "report_info_to_root_ack", report_info_to_root_process},
-	{"report_info_to_root_ack", NULL, report_info_to_root_ack_process},
-
-	/* Report information to the root node */
-	{"report_info_to_parent", "report_info_to_parent_ack", report_info_to_parent_process},
-	{"report_info_to_parent_ack", NULL, report_info_to_parent_ack_process},
+	/* Send JSON to the parent node */
+	{"json_id_to_parent", "json_id_to_parent_ack", json_to_parent_handler},
+	{"json_id_to_parent_ack", NULL, json_to_parent_ack_handler},
 
 	{NULL, NULL, NULL} /* Must be NULL terminated */
 };
@@ -298,7 +297,7 @@ void app_main()
 	esp_mesh_lite_init(&mesh_lite_config);
 
 	// Register custom message reception and recovery logic
-	esp_mesh_lite_msg_action_list_register(node_report_action);
+	esp_mesh_lite_msg_action_list_register(json_msgs_action);
 
 	app_wifi_set_softap_info();
 
@@ -312,8 +311,7 @@ void app_main()
 
 	esp_mesh_lite_start();
 
-	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS,
-									   true, NULL, print_system_info_timercb);
+	TimerHandle_t timer = xTimerCreate("print_system_info", 10000 / portTICK_PERIOD_MS, true, NULL, print_system_info_timercb);
 	xTimerStart(timer, 0);
 
 #if CONFIG_MESH_ROOT
@@ -334,14 +332,6 @@ void app_main()
 		if (received > 0) {
 			rx_buffer[received] = 0;
 			ESP_LOGD(TAG, "rx_buffer=[%s]", rx_buffer);
-
-			// Sending messages from the root to all leaves
-			// esp_mesh_lite_try_sending_msg("broadcast")
-			//	 --> broadcast_process()
-			//	 --> esp_mesh_lite_try_sending_msg("broadcast")
-			//	 --> broadcast_process()
-			//	 --> esp_mesh_lite_try_sending_msg("broadcast")
-			//	 it will be sent until the maximum number of retransmissions is reached
 			cJSON *root = cJSON_CreateObject();
 			if (root) {
 				cJSON_AddNumberToObject(root, "number", sequence_number);
@@ -349,12 +339,10 @@ void app_main()
 				char *my_json_string = cJSON_PrintUnformatted(root);
 				printf("[send to all child] %s\n", my_json_string);
 				cJSON_free(my_json_string);
-				esp_mesh_lite_try_sending_msg("broadcast", NULL, MAX_RETRY, root, &esp_mesh_lite_send_broadcast_msg_to_child);
-#if 0
 				// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
 				esp_mesh_lite_msg_config_t config = {
 					.json_msg = {
-						.send_msg = "broadcast",
+						.send_msg = "json_id_broadcast",
 						.expect_msg = NULL,
 						.max_retry = MAX_RETRY,
 						.retry_interval = 1000,
@@ -363,8 +351,10 @@ void app_main()
 						.send_fail = NULL,
 					}
 				};
-				esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
-#endif
+				esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+				if (err != ESP_OK) {
+					ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
+				}
 				cJSON_Delete(root);
 				sequence_number++;
 			}
