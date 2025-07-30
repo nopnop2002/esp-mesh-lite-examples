@@ -70,6 +70,3 @@ esp-mesh-lite and UART/USB gateway application for routerless mesh networks.
 
 # mesh2ble
 esp-mesh-lite and BLE gateway application for routerless mesh networks.   
-
-# mesh2can
-esp-mesh-lite and CAN gateway application for routerless mesh networks.   
