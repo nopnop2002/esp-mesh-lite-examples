@@ -34,7 +34,7 @@ One device must be configured as the root node and the other devices as leaf nod
 You can select JSON format or RAW format.   
 ![Image](https://github.com/user-attachments/assets/2cfddadc-cba8-4d92-8ce5-231ef553ef06)
 
-You can enable AES encryption.
+You can enable AES encryption.   
 Communication between nodes within a Mesh network can be encrypted with AES128 using esp_mesh_lite_aes_set_key.   
 ![Image](https://github.com/user-attachments/assets/87e9cd01-8319-4fc6-9a50-d703e0d41a16)
 
