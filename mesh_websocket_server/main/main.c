@@ -103,18 +103,18 @@ static void print_system_info_timercb(TimerHandle_t timer)
 
 	} else if (esp_mesh_lite_get_level() == 1) {
 #if CONFIG_MESH_ROOT
-		cJSON *item = cJSON_CreateObject();
-		if (item) {
-			cJSON_AddNumberToObject(item, "level", esp_mesh_lite_get_level());
-			cJSON_AddNumberToObject(item, "seq_number", seq_number);
-			cJSON_AddStringToObject(item, "self_mac", self_mac);
-			cJSON_AddStringToObject(item, "parent_mac", parent_mac);
-			cJSON_AddNumberToObject(item, "parent_rssi", parent_rssi);
-			cJSON_AddNumberToObject(item, "free_heap", free_heap);
-			cJSON_AddStringToObject(item, "target", CONFIG_IDF_TARGET);
-			cJSON_AddStringToObject(item, "node_comment", "root");
+		cJSON *root = cJSON_CreateObject();
+		if (root) {
+			cJSON_AddNumberToObject(root, "level", esp_mesh_lite_get_level());
+			cJSON_AddNumberToObject(root, "seq_number", seq_number);
+			cJSON_AddStringToObject(root, "self_mac", self_mac);
+			cJSON_AddStringToObject(root, "parent_mac", parent_mac);
+			cJSON_AddNumberToObject(root, "parent_rssi", parent_rssi);
+			cJSON_AddNumberToObject(root, "free_heap", free_heap);
+			cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
+			cJSON_AddStringToObject(root, "node_comment", "root");
 
-			char *my_json_string = cJSON_PrintUnformatted(item);
+			char *my_json_string = cJSON_PrintUnformatted(root);
 			ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
 			int json_length = strlen(my_json_string);
 			ESP_LOGI(TAG, "json_length=%d", json_length);
@@ -123,47 +123,41 @@ static void print_system_info_timercb(TimerHandle_t timer)
 				ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
 			}
 			cJSON_free(my_json_string);
-			cJSON_Delete(item);
+			cJSON_Delete(root);
 			seq_number++;
 		}
 #endif
 
 	} else {
-
 #if !CONFIG_MESH_ROOT
-		// Sending messages from all leaves to the root
-		// esp_mesh_lite_try_sending_msg("report_info_to_root")
-		//	 -->report_info_to_root_process()
-		//	 -->report_info_to_root_ack()
-		//	 When a message of the expected type is received, stop retransmitting.
-		cJSON *item = cJSON_CreateObject();
-		if (item) {
+		cJSON *root = cJSON_CreateObject();
+		if (root) {
 			printf("[send to root] level: %d seq_number: %"PRIu32" self_mac: [%s] parent_mac: [%s]\r\n", esp_mesh_lite_get_level(), seq_number, self_mac, parent_mac);
-			cJSON_AddNumberToObject(item, "level", esp_mesh_lite_get_level());
-			cJSON_AddNumberToObject(item, "seq_number", seq_number);
-			cJSON_AddStringToObject(item, "self_mac", self_mac);
-			cJSON_AddStringToObject(item, "parent_mac", parent_mac);
-			cJSON_AddNumberToObject(item, "parent_rssi", parent_rssi);
-			cJSON_AddNumberToObject(item, "free_heap", free_heap);
-			cJSON_AddStringToObject(item, "target", CONFIG_IDF_TARGET);
-			cJSON_AddStringToObject(item, "node_comment", CONFIG_NODE_COMMENT);
-			esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, item, &esp_mesh_lite_send_msg_to_root);
-#if 0
+			cJSON_AddNumberToObject(root, "level", esp_mesh_lite_get_level());
+			cJSON_AddNumberToObject(root, "seq_number", seq_number);
+			cJSON_AddStringToObject(root, "self_mac", self_mac);
+			cJSON_AddStringToObject(root, "parent_mac", parent_mac);
+			cJSON_AddNumberToObject(root, "parent_rssi", parent_rssi);
+			cJSON_AddNumberToObject(root, "free_heap", free_heap);
+			cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
+			cJSON_AddStringToObject(root, "node_comment", CONFIG_NODE_COMMENT);
 			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
 			esp_mesh_lite_msg_config_t config = {
 				.json_msg = {
-					.send_msg = "report_info_to_root",
-					.expect_msg = "report_info_to_root_ack",
+					.send_msg = "json_id_to_root",
+					.expect_msg = "json_id_to_root_ack",
 					.max_retry = MAX_RETRY,
 					.retry_interval = 1000,
-					.req_payload = item,
+					.req_payload = root,
 					.resend = &esp_mesh_lite_send_msg_to_root,
 					.send_fail = NULL,
 				}
 			};
-			esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
-#endif
-			cJSON_Delete(item);
+			esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+			if (err != ESP_OK) {
+				ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
+			}
+			cJSON_Delete(root);
 			seq_number++;
 		}
 #endif
@@ -246,7 +240,12 @@ void app_wifi_set_softap_info(void)
 }
 
 // https://gist.github.com/tswen/25d2054e868ef2b6c798a3ca05f77c7f
-static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
+static cJSON* json_broadcast_handler(cJSON *payload, uint32_t seq)
+{
+	return NULL;
+}
+
+static cJSON* json_to_root_handler(cJSON *payload, uint32_t seq)
 {
 #if CONFIG_MESH_ROOT
 	cJSON *found = NULL;
@@ -269,84 +268,44 @@ static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
 		ESP_LOGE(TAG, "xMessageBufferSendFromISR fail json_length=%d sended=%d", json_length, sended);
 	}
 	cJSON_free(my_json_string);
-
-	//esp_mesh_lite_node_info_add was updated to esp_mesh_lite_node_info_update
-	//esp_mesh_lite_node_info_add(level, found->valuestring);
 #endif
 	return NULL;
 }
 
-static cJSON* report_info_to_root_ack_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_root_ack_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_parent_process(cJSON *payload, uint32_t seq)
-{
-	cJSON *found = NULL;
-
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "seq_number");
-	uint32_t seq_number = found->valueint;
-	found = cJSON_GetObjectItem(payload, "self_mac");
-	char *self_mac = found->valuestring;
-	found = cJSON_GetObjectItem(payload, "parent_mac");
-	char *parent_mac = found->valuestring;
-	printf("[recv from child] level: %d, seq_number=%"PRIu32", self_mac: [%s] parent_mac[%s]\r\n", level, seq_number, self_mac, parent_mac);
-
-	return NULL;
-}
-
-static cJSON* report_info_to_parent_ack_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_parent_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_sibling_process(cJSON *payload, uint32_t seq)
-{
-	cJSON *found = NULL;
-
-	found = cJSON_GetObjectItem(payload, "level");
-	uint8_t level = found->valueint;
-	found = cJSON_GetObjectItem(payload, "seq_number");
-	uint32_t seq_number = found->valueint;
-	found = cJSON_GetObjectItem(payload, "self_mac");
-	char *self_mac = found->valuestring;
-	found = cJSON_GetObjectItem(payload, "parent_mac");
-	char *parent_mac = found->valuestring;
-	printf("[recv from sibling] level: %d, seq_number=%"PRIu32", self_mac: [%s] parent_mac: [%s]\r\n", level, seq_number, self_mac, parent_mac);
-
-	return NULL;
-}
-
-static cJSON* broadcast_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_parent_ack_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-#if 0
-typedef struct esp_mesh_lite_msg_action {
-	const char* type;		  /**< The type of message sent */
-	const char* rsp_type;	  /**< The message type expected to be received. When a message of the expected type is received, stop retransmitting.
-								If set to NULL, it will be sent until the maximum number of retransmissions is reached. */
-	msg_process_cb_t process; /**< The callback function when receiving the 'type' message. The cjson information in the type message can be processed in this cb. */
-} esp_mesh_lite_msg_action_t;
-#endif
+static cJSON* json_to_sibling_handler(cJSON *payload, uint32_t seq)
+{
+	return NULL;
+}
 
-static const esp_mesh_lite_msg_action_t node_report_action[] = {
-	{"broadcast", NULL, broadcast_process},
+static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
+	/* Send JSON to the all node */
+	{"json_id_broadcast", NULL, json_broadcast_handler},
 
-	/* Report information to the sibling node */
-	{"report_info_to_sibling", NULL, report_info_to_sibling_process},
+	/* Send JSON to the sibling node */
+	{"json_id_to_sibling", NULL, json_to_sibling_handler},
 
-	/* Report information to the root node */
-	{"report_info_to_root", "report_info_to_root_ack", report_info_to_root_process},
-	{"report_info_to_root_ack", NULL, report_info_to_root_ack_process},
+	/* Send JSON to the root node */
+	{"json_id_to_root", "json_id_to_root_ack", json_to_root_handler},
+	{"json_id_to_root_ack", NULL, json_to_root_ack_handler},
 
-	/* Report information to the root node */
-	{"report_info_to_parent", "report_info_to_parent_ack", report_info_to_parent_process},
-	{"report_info_to_parent_ack", NULL, report_info_to_parent_ack_process},
+	/* Send JSON to the parent node */
+	{"json_id_to_parent", "json_id_to_parent_ack", json_to_parent_handler},
+	{"json_id_to_parent_ack", NULL, json_to_parent_ack_handler},
 
 	{NULL, NULL, NULL} /* Must be NULL terminated */
 };
@@ -388,7 +347,7 @@ void app_main()
 	esp_mesh_lite_init(&mesh_lite_config);
 
 	// Register custom message reception and recovery logic
-	esp_mesh_lite_msg_action_list_register(node_report_action);
+	esp_mesh_lite_msg_action_list_register(json_msgs_action);
 
 	app_wifi_set_softap_info();
 
