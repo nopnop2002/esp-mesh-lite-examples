@@ -29,16 +29,19 @@ idf.py flash
 # Configuration   
 One device must be configured as the root node and the other devices as leaf nodes.   
 ![Image](https://github.com/user-attachments/assets/28ee4b1b-541a-4bc0-9d20-4c70e0e60452)
-![Image](https://github.com/user-attachments/assets/28cef279-6672-486e-bd79-1448451e1fec)
+![Image](https://github.com/user-attachments/assets/9f7c6490-0865-43f5-ac56-dae0bce6115d)
 
 You can select JSON format or RAW format.   
-![Image](https://github.com/user-attachments/assets/cac6c9ed-b503-4beb-b960-d01f98d0a8ea)
+![Image](https://github.com/user-attachments/assets/2cfddadc-cba8-4d92-8ce5-231ef553ef06)
 
+You can enable AES encryption.
+Communication between nodes within a Mesh network can be encrypted with AES128 using esp_mesh_lite_aes_set_key.   
+![Image](https://github.com/user-attachments/assets/87e9cd01-8319-4fc6-9a50-d703e0d41a16)
 
 
 # JSON FORMAT   
 To send data to other nodes, use the following function:   
-```esp_mesh_lite_try_sending_msg()``` or ```esp_mesh_lite_try_sending_msg_with_retry_inerval()```   
+```esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config)```   
 The function pointer for sending a message is one of the following:   
 - esp_mesh_lite_send_broadcast_msg_to_child()   
 	All child nodes receive the message.   
@@ -110,7 +113,7 @@ static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
 
 # RAW FORMAT   
 To send data to other nodes, use the following function:   
-```esp_mesh_lite_try_sending_raw_msg()``` or ```esp_mesh_lite_try_sending_raw_msg_with_retry_inerval()```   
+```esp_mesh_lite_send_msg(ESP_MESH_LITE_RAW_MSG, &config)```   
 The function pointer for sending a message is one of the following:   
 - esp_mesh_lite_send_broadcast_raw_msg_to_child()   
 - esp_mesh_lite_send_broadcast_raw_msg_to_parent()   
@@ -170,20 +173,6 @@ W (4297880) wifi:inactive timer: now=21a180 last_rx_time=ee2ea74b diff=49850, ai
 I (4297905) wifi:station: c8:c9:a3:cf:10:c4 leave, AID = 1, reason = 4, bss_flags is 753779, bss:0x3ffba868
 I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
 E (4297913) bridge_wifi: STA Disconnect to the AP
-```
-
-# AES encryption   
-Communication between nodes within a Mesh network can be encrypted with AES128 using esp_mesh_lite_aes_set_key.   
-```
-    esp_mesh_lite_config_t mesh_lite_config = ESP_MESH_LITE_DEFAULT_INIT();
-    esp_mesh_lite_init(&mesh_lite_config);
-
-    app_wifi_set_softap_info();
-
-    //this function must be called before Mesh-Lite initialization.
-    esp_mesh_lite_aes_set_key(key, 128);
-
-    esp_mesh_lite_start();
 ```
 
 # More information   

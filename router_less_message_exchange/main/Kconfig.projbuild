@@ -29,4 +29,10 @@ menu "Example Configuration"
 				Use Plain Text Format.
 	endchoice
 
+	config ENCRYPTION
+		bool "Enable AES encryption"
+		default false
+		help
+			Enable AES encryption.
+
 endmenu
