@@ -4,13 +4,14 @@ Every node acts as an web socket client.
 All nodes have the same IP address.   
 Messages from leaf nodes are forwarded through the root node.   
 ```
-+-------------+                +----------+
-|             |<--(send text)--|   root   |
-|             |                |          |
-|socket server|                |          |
-|             |                |          |                +----------+
-|             |<--(send text)--|<---------|<--(send text)--|   leaf   |
-+-------------+                +----------+                +----------+
+                                       ESP32
++-------------+                    +-------------+
+|             |<--SOCKET packets-->|SOCKET client|
+|             |                    |     root    |                        ESP32
+|SOCKET server|                    |             |                    +-------------+
+|             |                    |             |                    |SOCKET client|
+|             |<--SOCKET packets-->|<===========>|<--SOCKET packets-->|     leaf    |
++-------------+                    +-------------+                    +-------------+
 ```
 
 # Software requirements
