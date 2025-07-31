@@ -39,13 +39,13 @@ static const char *TAG = "MAIN";
 
 void ftp_client(void *pvParameters);
 
-#define MAX_RETRY  0
-#define RAW_MSG_ID_TO_ROOT 1
+#define MAX_RETRY 5
+#define RAW_MSG_ID_BROADCAST 1
 #define RAW_MSG_ID_TO_SIBLING 2
-#define RAW_MSG_ID_TO_ROOT_RESP 3
-#define RAW_MSG_ID_TO_PARENT 4
-#define RAW_MSG_ID_TO_PARENT_RESP 5
-#define RAW_MSG_ID_BROADCAST 6
+#define RAW_MSG_ID_TO_ROOT 3
+#define RAW_MSG_ID_TO_ROOT_RESP 4
+#define RAW_MSG_ID_TO_PARENT 5
+#define RAW_MSG_ID_TO_PARENT_RESP 6
 
 /**
  * @brief Timed printing system information
@@ -125,7 +125,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		esp_mesh_lite_msg_config_t config = {
 			.raw_msg = {
 				.msg_id = RAW_MSG_ID_TO_ROOT,
-				.expect_resp_msg_id = 0,
+				.expect_resp_msg_id = RAW_MSG_ID_TO_ROOT_RESP,
 				.max_retry = MAX_RETRY,
 				.retry_interval = 1000,
 				.data = (uint8_t *)buffer,
