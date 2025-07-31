@@ -11,7 +11,7 @@ Messages from leaf nodes are forwarded through the root node.
 |           |                  |   root    |
 |MQTT broker|                  |           |                  +-----------+
 |           |                  |           |                  |MQTT client|
-|           |<--MQTT packets-->|<--------->|<--MQTT packets-->|   leaf    |
+|           |<--MQTT packets-->|<=========>|<--MQTT packets-->|   leaf    |
 +-----------+                  +-----------+                  +-----------+
 ```
 
