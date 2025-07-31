@@ -4,13 +4,14 @@ Every node acts as an http client.
 All nodes have the same IP address.   
 Messages from leaf nodes are forwarded through the root node.   
 ```
-+-----------+                +----------+
-|           |<--(http post)--|   root   |
-|           |                |          |
-|http server|                |          |
-|           |                |          |                +----------+
-|           |<--(http post)--|<---------|<--(http post)--|   leaf   |
-+-----------+                +----------+                +----------+
+                               ESP32
++-----------+              +-----------+
+|           |<--HTTP post--|HTTP Client|
+|           |              |   root    |                  ESP32
+|HTTP server|              |           |              +-----------+
+|           |              |           |              |HTTP Client|
+|           |<--HTTP post--|<----------|<--HTTP post--|   leaf    |
++-----------+              +-----------+              +-----------+
 ```
 
 # Software requirements
