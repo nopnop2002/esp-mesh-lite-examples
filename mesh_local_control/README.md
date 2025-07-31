@@ -1,5 +1,17 @@
 # mesh_local_control
 esp-mesh-lite comes with [this](https://github.com/espressif/esp-mesh-lite/tree/master/examples/mesh_local_control) TCP client example.   
+TCP packets from leaf go through root.   
+```
+   Linux                        ESP32
++-----------+                +----------+
+|           |<--TCP Packets--|tcp client|
+|           |                |   root   |                   ESP32
+| tcp server|                |          |                +----------+
+|           |                |          |                |tcp client|
+|           |<--TCP Packets--|<---------|<--TCP Packets--|   leaf   |
+|           |                |          |                +----------+
++-----------+                +----------+
+```
 This is a TCP server script that can communicate with multiple ESP32s.   
 You can try esp-mesh-lite now.   
 
