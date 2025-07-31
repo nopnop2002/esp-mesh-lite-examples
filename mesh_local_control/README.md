@@ -6,11 +6,10 @@ TCP packets from leaf go through root.
 +-----------+                +----------+
 |           |<--TCP Packets--|tcp client|
 |           |                |   root   |                   ESP32
-| tcp server|                |          |                +----------+
+| TCP server|                |          |                +----------+
 |           |                |          |                |tcp client|
 |           |<--TCP Packets--|<---------|<--TCP Packets--|   leaf   |
-|           |                |          |                +----------+
-+-----------+                +----------+
++-----------+                +----------+                +----------+
 ```
 This is a TCP server script that can communicate with multiple ESP32s.   
 You can try esp-mesh-lite now.   
