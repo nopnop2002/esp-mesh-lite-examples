@@ -274,11 +274,6 @@ static void print_system_info_timercb(TimerHandle_t timer)
 
 #else
 	if (esp_mesh_lite_get_level() > 1) {
-		// Sending messages from all leaves to the root
-		// esp_mesh_lite_try_sending_msg("report_info_to_root")
-		//	 -->report_info_to_root_process()
-		//	 -->report_info_to_root_ack()
-		//	 When a message of the expected type is received, stop retransmitting.
 		cJSON *root = cJSON_CreateObject();
 		if (root == NULL) {
 			ESP_LOGE(TAG, "cJSON_CreateObject fail");
@@ -294,13 +289,11 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		cJSON_AddNumberToObject(root, "free_heap", free_heap);
 		cJSON_AddStringToObject(root, "target", CONFIG_IDF_TARGET);
 		cJSON_AddStringToObject(root, "node_comment", CONFIG_NODE_COMMENT);
-		ESP_ERROR_CHECK(esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root));
-#if 0
 		// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
 		esp_mesh_lite_msg_config_t config = {
 			.json_msg = {
-				.send_msg = "report_info_to_root",
-				.expect_msg = "report_info_to_root_ack",
+				.send_msg = "json_id_to_root",
+				.expect_msg = "json_id_to_root_ack",
 				.max_retry = MAX_RETRY,
 				.retry_interval = 1000,
 				.req_payload = root,
@@ -308,8 +301,10 @@ static void print_system_info_timercb(TimerHandle_t timer)
 				.send_fail = NULL,
 			}
 		};
-		esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
-#endif
+		esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+		if (err != ESP_OK) {
+			ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
+		}
 		cJSON_Delete(root);
 		seq_number++;
 
@@ -324,7 +319,22 @@ static void print_system_info_timercb(TimerHandle_t timer)
 			ESP_ERROR_CHECK(build_system_object(root));
 			cJSON_AddStringToObject(root, "id", "system_information");
 			cJSON_AddStringToObject(root, "self_mac", self_mac);
-			ESP_ERROR_CHECK(esp_mesh_lite_try_sending_msg("report_info_to_root", "report_info_to_root_ack", MAX_RETRY, root, &esp_mesh_lite_send_msg_to_root));
+			// esp_mesh_lite_try_sending_msg will be updated to esp_mesh_lite_send_msg
+			esp_mesh_lite_msg_config_t config = {
+				.json_msg = {
+					.send_msg = "json_id_to_root",
+					.expect_msg = "json_id_to_root_ack",
+					.max_retry = MAX_RETRY,
+					.retry_interval = 1000,
+					.req_payload = root,
+					.resend = &esp_mesh_lite_send_msg_to_root,
+					.send_fail = NULL,
+				}
+			};
+			esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_JSON_MSG, &config);
+			if (err != ESP_OK) {
+				ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
+			}
 			cJSON_Delete(root);
 		} // end gpio_information
 	}
@@ -407,7 +417,12 @@ void app_wifi_set_softap_info(void)
 }
 
 // https://gist.github.com/tswen/25d2054e868ef2b6c798a3ca05f77c7f
-static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
+static cJSON* json_broadcast_handler(cJSON *payload, uint32_t seq)
+{
+	return NULL;
+}
+
+static cJSON* json_to_root_handler(cJSON *payload, uint32_t seq)
 {
 	// This handler is only used by the root node.
 #if CONFIG_MESH_ROOT
@@ -440,53 +455,40 @@ static cJSON* report_info_to_root_process(cJSON *payload, uint32_t seq)
 	return NULL;
 }
 
-static cJSON* report_info_to_root_ack_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_root_ack_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_parent_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_parent_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_parent_ack_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_parent_ack_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* report_info_to_sibling_process(cJSON *payload, uint32_t seq)
+static cJSON* json_to_sibling_handler(cJSON *payload, uint32_t seq)
 {
 	return NULL;
 }
 
-static cJSON* broadcast_process(cJSON *payload, uint32_t seq)
-{
-	return NULL;
-}
+static const esp_mesh_lite_msg_action_t json_msgs_action[] = {
+	/* Send JSON to the all node */
+	{"json_id_broadcast", NULL, json_broadcast_handler},
 
-#if 0
-typedef struct esp_mesh_lite_msg_action {
-	const char* type;		  /**< The type of message sent */
-	const char* rsp_type;	  /**< The message type expected to be received. When a message of the expected type is received, stop retransmitting.
-								If set to NULL, it will be sent until the maximum number of retransmissions is reached. */
-	msg_process_cb_t process; /**< The callback function when receiving the 'type' message. The cjson information in the type message can be processed in this cb. */
-} esp_mesh_lite_msg_action_t;
-#endif
+	/* Send JSON to the sibling node */
+	{"json_id_to_sibling", NULL, json_to_sibling_handler},
 
-static const esp_mesh_lite_msg_action_t node_report_action[] = {
-	{"broadcast", NULL, broadcast_process},
+	/* Send JSON to the root node */
+	{"json_id_to_root", "json_id_to_root_ack", json_to_root_handler},
+	{"json_id_to_root_ack", NULL, json_to_root_ack_handler},
 
-	/* Report information to the sibling node */
-	{"report_info_to_sibling", NULL, report_info_to_sibling_process},
-
-	/* Report information to the root node */
-	{"report_info_to_root", "report_info_to_root_ack", report_info_to_root_process},
-	{"report_info_to_root_ack", NULL, report_info_to_root_ack_process},
-
-	/* Report information to the root node */
-	{"report_info_to_parent", "report_info_to_parent_ack", report_info_to_parent_process},
-	{"report_info_to_parent_ack", NULL, report_info_to_parent_ack_process},
+	/* Send JSON to the parent node */
+	{"json_id_to_parent", "json_id_to_parent_ack", json_to_parent_handler},
+	{"json_id_to_parent_ack", NULL, json_to_parent_ack_handler},
 
 	{NULL, NULL, NULL} /* Must be NULL terminated */
 };
@@ -612,7 +614,7 @@ void app_main()
 	esp_mesh_lite_init(&mesh_lite_config);
 
 	// Register custom message reception and recovery logic
-	esp_mesh_lite_msg_action_list_register(node_report_action);
+	esp_mesh_lite_msg_action_list_register(json_msgs_action);
 
 	app_wifi_set_softap_info();
 
