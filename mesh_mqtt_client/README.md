@@ -6,13 +6,13 @@ Every node has a different local port.
 Messages from leaf nodes are forwarded through the root node.   
 ```
                                  ESP32
-+-----------+                 +-----------+
-|           |<--MQTT packets--|MQTT client|
-|           |                 |   root    |
-|MQTT broker|                 |           |                 +-----------+
-|           |                 |           |                 |MQTT client|
-|           |<--MQTT packets--|<----------|<--MQTT packets--|   leaf    |
-+-----------+                 +-----------+                 +-----------+
++-----------+                  +-----------+
+|           |<--MQTT packets-->|MQTT client|
+|           |                  |   root    |
+|MQTT broker|                  |           |                  +-----------+
+|           |                  |           |                  |MQTT client|
+|           |<--MQTT packets-->|<----------|<--MQTT packets-->|   leaf    |
++-----------+                  +-----------+                  +-----------+
 ```
 
 # Software requirements
