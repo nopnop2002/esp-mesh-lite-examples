@@ -135,12 +135,12 @@ typedef struct esp_mesh_lite_raw_msg_action {
 This project defines the following receive callbacks:   
 
 ```
-#define RAW_MSG_ID_TO_ROOT 1
+#define RAW_MSG_ID_BROADCAST 1
 #define RAW_MSG_ID_TO_SIBLING 2
-#define RAW_MSG_ID_TO_ROOT_RESP 3
-#define RAW_MSG_ID_TO_PARENT 4
-#define RAW_MSG_ID_TO_PARENT_RESP 5
-#define RAW_MSG_ID_BROADCAST 6
+#define RAW_MSG_ID_TO_ROOT 3
+#define RAW_MSG_ID_TO_ROOT_RESP 4
+#define RAW_MSG_ID_TO_PARENT 5
+#define RAW_MSG_ID_TO_PARENT_RESP 6
 
 static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
     /* Send RAW to the all node */
