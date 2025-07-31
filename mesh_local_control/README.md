@@ -8,7 +8,7 @@ TCP packets from leaf go through root.
 |           |                |   root   |                   ESP32
 | TCP server|                |          |                +----------+
 |           |                |          |                |TCP client|
-|           |<--TCP Packets--|<---------|<--TCP Packets--|   leaf   |
+|           |<--TCP Packets--|<=========|<--TCP Packets--|   leaf   |
 +-----------+                +----------+                +----------+
 ```
 This is a TCP server script that can communicate with multiple ESP32s.   
