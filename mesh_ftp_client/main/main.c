@@ -23,6 +23,7 @@
 
 #include "esp_wifi.h"
 #include "nvs_flash.h"
+#include <sys/socket.h> // ip_struct/inet_ntoa
 
 #include "esp_bridge.h"
 #include "esp_mesh_lite.h"
@@ -36,15 +37,15 @@ static char srcFileName[64];
 
 static const char *TAG = "MAIN";
 
-#define MAX_RETRY  5
-
 void ftp_client(void *pvParameters);
 
-#define MESH_LITE_MSG_ID_TO_ROOT 1
-#define MESH_LITE_MSG_ID_TO_ROOT_RESP 2
-#define MESH_LITE_MSG_ID_TO_PARENT 3
-#define MESH_LITE_MSG_ID_TO_PARENT_RESP 4
-#define MESH_LITE_MSG_ID_BROADCAST 5
+#define MAX_RETRY  5
+#define RAW_MSG_ID_TO_ROOT 1
+#define RAW_MSG_ID_TO_SIBLING 2
+#define RAW_MSG_ID_TO_ROOT_RESP 3
+#define RAW_MSG_ID_TO_PARENT 4
+#define RAW_MSG_ID_TO_PARENT_RESP 5
+#define RAW_MSG_ID_BROADCAST 6
 
 /**
  * @brief Timed printing system information
@@ -65,7 +66,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 	esp_wifi_get_channel(&primary, &second);
 
 	char buffer[256];
-	snprintf(buffer, sizeof(buffer), 
+	int buffer_len = snprintf(buffer, sizeof(buffer), 
 		"System information, channel: %d, layer: %d, self mac: " MACSTR ", parent bssid: " MACSTR
 		", parent rssi: %d, free heap: %"PRIu32"", primary,
 		esp_mesh_lite_get_level(), MAC2STR(ap_mac), MAC2STR(ap_info.bssid),
@@ -77,12 +78,21 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		esp_mesh_lite_get_level(), MAC2STR(ap_mac), MAC2STR(ap_info.bssid),
 		(ap_info.rssi != 0 ? ap_info.rssi : -120), esp_get_free_heap_size());
 #endif
-#if CONFIG_MESH_LITE_NODE_INFO_REPORT
-	ESP_LOGI(TAG, "All node number: %"PRIu32"", esp_mesh_lite_get_mesh_node_number());
-#endif /* MESH_LITE_NODE_INFO_REPORT */
 	for (int i = 0; i < wifi_sta_list.num; i++) {
 		ESP_LOGI(TAG, "Child mac: " MACSTR, MAC2STR(wifi_sta_list.sta[i].mac));
 	}
+
+#if 0
+	ESP_LOGI(TAG, "All node number: %"PRIu32"", esp_mesh_lite_get_mesh_node_number());
+	uint32_t size = 0;
+	const node_info_list_t *node = esp_mesh_lite_get_nodes_list(&size);
+	for (uint32_t loop = 0; (loop < size) && (node != NULL); loop++) {
+		struct in_addr ip_struct;
+		ip_struct.s_addr = node->node->ip_addr;
+		printf("%ld: %d, "MACSTR", %s\r\n" , loop + 1, node->node->level, MAC2STR(node->node->mac_addr), inet_ntoa(ip_struct));
+		node = node->next;
+	}
+#endif
 
 	char mac_str[MAC_MAX_LEN];
 	snprintf(mac_str, sizeof(mac_str), MACSTR, MAC2STR(sta_mac));
@@ -112,10 +122,21 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		xQueueSendFromISR(xQueueFTP, &layer, NULL);
 	} else {
 		ESP_LOGI(TAG, "layer: %d, mac_str: [%s]", layer, mac_str);
-		esp_err_t err = esp_mesh_lite_try_sending_raw_msg(MESH_LITE_MSG_ID_TO_ROOT, 0, 0, (const uint8_t*)buffer,
-			strlen(buffer), esp_mesh_lite_send_raw_msg_to_root);
+		esp_mesh_lite_msg_config_t config = {
+			.raw_msg = {
+				.msg_id = RAW_MSG_ID_TO_ROOT,
+				.expect_resp_msg_id = 0,
+				.max_retry = MAX_RETRY,
+				.retry_interval = 1000,
+				.data = (uint8_t *)buffer,
+				.size = buffer_len,
+				.raw_resend = &esp_mesh_lite_send_raw_msg_to_root,
+				.raw_send_fail = NULL,
+			}
+		};
+		esp_err_t err = esp_mesh_lite_send_msg(ESP_MESH_LITE_RAW_MSG, &config);
 		if (err != ESP_OK) {
-			ESP_LOGE(TAG, "esp_mesh_lite_try_sending_raw_msg fail");
+			ESP_LOGE(TAG, "esp_mesh_lite_send_msg fail");
 		}
 	}
 }
@@ -181,6 +202,72 @@ void app_wifi_set_softap_info(void)
 	esp_mesh_lite_set_softap_info(softap_ssid, CONFIG_BRIDGE_SOFTAP_PASSWORD);
 }
 
+static esp_err_t raw_broadcast_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t raw_to_sibling_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t raw_to_root_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	ESP_LOGD(__FUNCTION__, "seq=%"PRIi32, seq);
+	static uint32_t last_recv_seq = 0;
+	// The same message will be received MAX_RETRY times, so if it is the same message, it will be discarded.
+	if (last_recv_seq != seq) {
+		printf("[recv from child] %.*s\n", (int)len, data);
+		if (strncmp((char *)data, "System information", 18) == 0) {
+			// Append file
+			FILE* fp = fopen(srcFileName, "a+");
+			if (fp != NULL) {
+				fprintf(fp, "%.*s\n", (int)len, data);
+				fclose(fp);
+			} else {
+				ESP_LOGE(TAG, "Failed to open file for writing");
+			}
+		}
+		last_recv_seq = seq;
+	}
+	*out_len = 0;
+	return ESP_OK;
+}
+
+static esp_err_t raw_to_root_resp_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t raw_to_parent_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static esp_err_t raw_to_parent_resp_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
+{
+	return ESP_OK;
+}
+
+static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
+	/* Send RAW to the all node */
+	{RAW_MSG_ID_BROADCAST, 0, raw_broadcast_handler},
+
+	/* Send RAW to the sibling node */
+	{RAW_MSG_ID_TO_SIBLING, 0, raw_to_sibling_handler},
+
+	/* Send RAW to the root node */
+	{RAW_MSG_ID_TO_ROOT, RAW_MSG_ID_TO_ROOT_RESP, raw_to_root_handler},
+	{RAW_MSG_ID_TO_ROOT_RESP, 0, raw_to_root_resp_handler},
+
+	/* Send RAW to the parent node */
+	{RAW_MSG_ID_TO_PARENT, RAW_MSG_ID_TO_PARENT_RESP, raw_to_parent_handler},
+	{RAW_MSG_ID_TO_PARENT_RESP, 0, raw_to_parent_resp_handler},
+
+	{0, 0, NULL} /* Must be NULL terminated */
+};
+
 esp_err_t mountSPIFFS(char * partition_label, char * mount_point) {
 	ESP_LOGI(TAG, "Initializing SPIFFS file system on Builtin SPI Flash Memory");
 
@@ -216,52 +303,6 @@ esp_err_t mountSPIFFS(char * partition_label, char * mount_point) {
 	ESP_LOGI(TAG, "Mount SPIFFS filesystem on %s", mount_point);
 	return ret;
 }
-
-static esp_err_t mesh_lite_to_root_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
-{
-	ESP_LOGI(__FUNCTION__, "seq=%"PRIi32, seq);
-	//ESP_LOG_BUFFER_HEXDUMP(__FUNCTION__, data, len, ESP_LOG_INFO);
-	*out_len = 0;
-
-	// Append file
-	FILE* fp = fopen(srcFileName, "a+");
-	if (fp != NULL) {
-		fprintf(fp, "%.*s\n", (int)len, data);
-		fclose(fp);
-	} else {
-		ESP_LOGE(TAG, "Failed to open file for writing");
-	}
-	return ESP_OK;
-}
-
-static esp_err_t mesh_lite_to_root_resp_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
-{
-	return ESP_OK;
-}
-
-static esp_err_t mesh_lite_to_parent_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
-{
-	return ESP_OK;
-}
-
-static esp_err_t mesh_lite_to_parent_resp_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
-{
-	return ESP_OK;
-}
-
-static esp_err_t mesh_lite_broadcast_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
-{
-	return ESP_OK;
-}
-
-static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
-	{MESH_LITE_MSG_ID_TO_ROOT, MESH_LITE_MSG_ID_TO_ROOT_RESP, mesh_lite_to_root_handler},
-	{MESH_LITE_MSG_ID_TO_ROOT_RESP, 0, mesh_lite_to_root_resp_handler},
-	{MESH_LITE_MSG_ID_TO_PARENT, MESH_LITE_MSG_ID_TO_PARENT_RESP, mesh_lite_to_parent_handler},
-	{MESH_LITE_MSG_ID_TO_PARENT_RESP, 0, mesh_lite_to_parent_resp_handler},
-	{MESH_LITE_MSG_ID_BROADCAST, 0, mesh_lite_broadcast_handler},
-	{0, 0, NULL}
-};
 
 void app_main()
 {
