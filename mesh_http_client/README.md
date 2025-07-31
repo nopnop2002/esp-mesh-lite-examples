@@ -10,7 +10,7 @@ Messages from leaf nodes are forwarded through the root node.
 |           |              |   root    |                  ESP32
 |HTTP server|              |           |              +-----------+
 |           |              |           |              |HTTP client|
-|           |<--HTTP post--|<----------|<--HTTP post--|   leaf    |
+|           |<--HTTP post--|<==========|<--HTTP post--|   leaf    |
 +-----------+              +-----------+              +-----------+
 ```
 
