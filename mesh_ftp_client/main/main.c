@@ -97,7 +97,7 @@ static void print_system_info_timercb(TimerHandle_t timer)
 	char mac_str[MAC_MAX_LEN];
 	snprintf(mac_str, sizeof(mac_str), MACSTR, MAC2STR(sta_mac));
 	int16_t layer = esp_mesh_lite_get_level();
-	ESP_LOGI(TAG, "layer=%d", layer);
+	ESP_LOGD(TAG, "layer: %d, mac_str: [%s]", layer, mac_str);
 	if (layer == 1) {
 		sprintf(srcFileName, "%s/mesh-lite.txt", MOUNT_POINT);
 		if (ftp_client_task == false) {
@@ -121,7 +121,6 @@ static void print_system_info_timercb(TimerHandle_t timer)
 		}
 		xQueueSendFromISR(xQueueFTP, &layer, NULL);
 	} else {
-		ESP_LOGI(TAG, "layer: %d, mac_str: [%s]", layer, mac_str);
 		esp_mesh_lite_msg_config_t config = {
 			.raw_msg = {
 				.msg_id = RAW_MSG_ID_TO_ROOT,
