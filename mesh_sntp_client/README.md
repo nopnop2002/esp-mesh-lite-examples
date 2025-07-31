@@ -11,7 +11,7 @@ Messages from leaf nodes are forwarded through the root node.
 |           |                  |   root    |                     ESP32
 |SNTP server|                  |           |                  +-----------+
 |           |                  |           |                  |SNTP client|
-|           |<--SNTP packets-->|<--------->|<--SNTP packets-->|   leaf    |
+|           |<--SNTP packets-->|<=========>|<--SNTP packets-->|   leaf    |
 +-----------+                  +-----------+                  +-----------+
 ```
 
