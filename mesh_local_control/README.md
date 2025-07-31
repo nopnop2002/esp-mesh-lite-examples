@@ -4,10 +4,10 @@ TCP packets from leaf go through root.
 ```
    Linux                        ESP32
 +-----------+                +----------+
-|           |<--TCP Packets--|tcp client|
+|           |<--TCP Packets--|TCP client|
 |           |                |   root   |                   ESP32
 | TCP server|                |          |                +----------+
-|           |                |          |                |tcp client|
+|           |                |          |                |TCP client|
 |           |<--TCP Packets--|<---------|<--TCP Packets--|   leaf   |
 +-----------+                +----------+                +----------+
 ```
