@@ -5,13 +5,14 @@ All nodes have the same IP address.
 Every node has a different local port.   
 Messages from leaf nodes are forwarded through the root node.   
 ```
-+-----------+                      +----------+
-|           |<---(mqtt request)----|   root   |
-|           |                      |          |
-|mqtt broker|                      |          |
-|           |                      |          |                      +----------+
-|           |<---(mqtt request)----|          |<---(mqtt request)----|   leaf   |
-+-----------+                      +----------+                      +----------+
+                                 ESP32
++-----------+                 +-----------+
+|           |<--MQTT packets--|MQTT client|
+|           |                 |   root    |
+|MQTT broker|                 |           |                 +-----------+
+|           |                 |           |                 |MQTT client|
+|           |<--MQTT packets--|           |<--MQTT packets--|   leaf    |
++-----------+                 +-----------+                 +-----------+
 ```
 
 # Software requirements
