@@ -70,7 +70,7 @@ typedef struct esp_mesh_lite_msg_action {
 
 This project defines the following receive callbacks:   
 A message of type "json_id_broadcast" indicates that it will be notified to json_broadcast_handler().   
-Whe json_broadcast_handler() receives data, there is no response.   
+When json_broadcast_handler() receives data, there is no response.   
 ```
 +----------+                         +----------+
 |   root   |---(json_id_broadcast)-->|   leaf   |
