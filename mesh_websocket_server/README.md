@@ -3,11 +3,12 @@ WebSocket server for esp-mesh-lite.
 Only the root node can act as a server.   
 Leaf nodes communicate with the root node via internal communication.   
 ```
-+----------+               +----------+               +----------+
-|          |---(request)-->|          |               |          |
-| Browser  |               |   root   |<--(Internal)--|   leaf   |
-|          |<--(response)--|          |               |          |
-+----------+               +----------+               +----------+
+                                ESP32                        ESP32
++----------+               +-------------+               +----------+
+|          |--SOCKET get-->|SOCKET server|               |          |
+| Browser  |               |     root    |<--(Internal)--|   leaf   |
+|          |<---response---|             |               |          |
++----------+               +-------------+               +----------+
 ```
 
 # Software requirements
