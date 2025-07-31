@@ -39,7 +39,7 @@ static const char *TAG = "MAIN";
 
 void ftp_client(void *pvParameters);
 
-#define MAX_RETRY  5
+#define MAX_RETRY  0
 #define RAW_MSG_ID_TO_ROOT 1
 #define RAW_MSG_ID_TO_SIBLING 2
 #define RAW_MSG_ID_TO_ROOT_RESP 3
@@ -214,7 +214,7 @@ static esp_err_t raw_to_sibling_handler(uint8_t *data, uint32_t len, uint8_t **o
 
 static esp_err_t raw_to_root_handler(uint8_t *data, uint32_t len, uint8_t **out_data, uint32_t* out_len, uint32_t seq)
 {
-	ESP_LOGD(__FUNCTION__, "seq=%"PRIi32, seq);
+	ESP_LOGI(__FUNCTION__, "seq=%"PRIi32, seq);
 	static uint32_t last_recv_seq = 0;
 	// The same message will be received MAX_RETRY times, so if it is the same message, it will be discarded.
 	if (last_recv_seq != seq) {
