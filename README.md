@@ -73,11 +73,11 @@ esp-mesh-lite and BLE gateway application for routerless mesh networks.
 
 # Restructuring network topology   
 
-### Loss of a leaf node   
-If a leaf node is lost for any reason, the root node disconnects the leaf node from the MESH network.   
-This is the logging of the root node at that time.   
-The root node has two child nodes up to tick 481219.   
-From tick 486019 onwards, the root node has one child node.
+### Loss of a child node   
+If a child node is lost for any reason, the parent node disconnects the child node from the MESH network.   
+This is the logging of the parent node at that time.   
+The parent node has two child nodes up to tick 481219.   
+From tick 486019 onwards, the parent node has one child node.
 ```
 I (481219) no_router: System information, channel: 11, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: 00:00:00:00:00:00, parent rssi: -120, free heap: 181260
 I (481219) no_router: Child mac: 24:0a:c4:c5:46:fc
@@ -133,8 +133,9 @@ I (101247) wifi:<ba-add>idx:1 (ifx:0, f8:b7:97:36:de:52), tid:0, ssn:6, winSize:
 I (111204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -55, free heap: 180484
 ```
 
-### Adding leaf nodes
-When a leaf node is added, the root node automatically adds it to the network.   
+### Adding leaf nodes   
+When a leaf node is added, the root node or leaf node automatically adds it to the network.   
+The parent node is determined automatically based on the surrounding circumstances.   
 This is the logging of the root node at that time.   
 The root node has one child node up to tick 1031209.    
 From tick 1038584 onwards, the root node has two child nodes.   
