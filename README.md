@@ -70,3 +70,19 @@ esp-mesh-lite and UART/USB gateway application for routerless mesh networks.
 
 # mesh2ble
 esp-mesh-lite and BLE gateway application for routerless mesh networks.   
+
+# Loss of a leaf node   
+If communication from a leaf node to the root node is lost for a certain period of time, the root node will determine that the leaf node is lost.   
+Then, it will disconnect the leaf node from the MESH network.   
+This is the logging of the root node at that time.   
+```
+W (4296140) wifi:inactive timer: now=713bb last_rx_time=ee0e5bf3 diff=499c8, aid[2]3c:71:bf:9d:bd:00 leave
+I (4296164) wifi:station: 3c:71:bf:9d:bd:00 leave, AID = 2, reason = 4, bss_flags is 753779, bss:0x3ffd22dc
+I (4296165) wifi:new:<11,2>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
+E (4296171) bridge_wifi: STA Disconnect to the AP
+W (4297880) wifi:inactive timer: now=21a180 last_rx_time=ee2ea74b diff=49850, aid[1]c8:c9:a3:cf:10:c4 leave
+I (4297905) wifi:station: c8:c9:a3:cf:10:c4 leave, AID = 1, reason = 4, bss_flags is 753779, bss:0x3ffba868
+I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
+E (4297913) bridge_wifi: STA Disconnect to the AP
+```
+
