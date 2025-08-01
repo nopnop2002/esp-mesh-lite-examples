@@ -36,6 +36,7 @@ You can select JSON format or RAW format.
 
 You can enable AES encryption.   
 Communication between nodes within a Mesh network can be encrypted with AES128 using esp_mesh_lite_aes_set_key.   
+If you enable AES encryption, __it must be enabled on all nodes.__   
 ![Image](https://github.com/user-attachments/assets/87e9cd01-8319-4fc6-9a50-d703e0d41a16)
 
 
