@@ -163,6 +163,7 @@ static const esp_mesh_lite_raw_msg_action_t raw_msgs_action[] = {
 
 # Loss of a leaf node   
 If communication from a leaf node to the root node is lost for a certain period of time, the root node will determine that the leaf node is lost.   
+Then, it will disconnect the leaf node from the MESH network.   
 This is the logging of the root node at that time.   
 ```
 W (4296140) wifi:inactive timer: now=713bb last_rx_time=ee0e5bf3 diff=499c8, aid[2]3c:71:bf:9d:bd:00 leave
