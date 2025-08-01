@@ -128,3 +128,28 @@ I (101247) wifi:<ba-add>idx:1 (ifx:0, f8:b7:97:36:de:52), tid:0, ssn:6, winSize:
 I (111204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -55, free heap: 180484
 ```
 
+### Adding leaf nodes
+When a leaf node is added, the root node automatically adds it to the network.   
+This is the logging of the root node at that time.   
+The root node has one child node up to tick 1031209.    
+From tick 1038584 onwards, the root node has two child nodes.   
+```
+I (1021204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -56, free heap: 178116
+I (1021211) local_control: Child mac: 24:0a:c4:c5:46:fc
+I (1031204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -56, free heap: 178116
+I (1031209) local_control: Child mac: 24:0a:c4:c5:46:fc
+I (1038584) wifi:new:<1,1>, old:<1,1>, ap:<1,1>, sta:<1,0>, prof:1, snd_ch_cfg:0x0
+I (1038585) wifi:station: a4:cf:12:05:c6:34 join, AID=2, bgn, 40U
+I (1038614) bridge_wifi: STA Connecting to the AP again...
+I (1038637) esp_netif_lwip: DHCP server assigned IP to a client, IP is: 192.168.4.3
+I (1039679) wifi:<ba-add>idx:3 (ifx:1, a4:cf:12:05:c6:34), tid:0, ssn:0, winSize:64
+I (1041204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -56, free heap: 175748
+I (1041209) local_control: Child mac: 24:0a:c4:c5:46:fc
+I (1041214) local_control: Child mac: a4:cf:12:05:c6:34
+I (1051204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -56, free heap: 175748
+I (1051209) local_control: Child mac: 24:0a:c4:c5:46:fc
+I (1051214) local_control: Child mac: a4:cf:12:05:c6:34
+I (1061204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -57, free heap: 175560
+I (1061209) local_control: Child mac: 24:0a:c4:c5:46:fc
+I (1061214) local_control: Child mac: a4:cf:12:05:c6:34
+```
