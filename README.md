@@ -71,7 +71,9 @@ esp-mesh-lite and UART/USB gateway application for routerless mesh networks.
 # mesh2ble
 esp-mesh-lite and BLE gateway application for routerless mesh networks.   
 
-# Loss of a leaf node   
+# Restructuring network topology   
+
+### Loss of a leaf node   
 If communication from a leaf node to the root node is lost for a certain period of time, the root node will determine that the leaf node is lost.   
 Then, it will disconnect the leaf node from the MESH network.   
 This is the logging of the root node at that time.   
@@ -86,7 +88,7 @@ I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_c
 E (4297913) bridge_wifi: STA Disconnect to the AP
 ```
 
-# Loss of a root node   
+### Loss of a root node   
 If the root node is lost for any reason, one of the leaf nodes is promoted to root node.   
 This is the logging of the root node at that time.   
 This node was in layer 2 until tick 91204, but was promoted to the root node from tick 95683 onwards.   
