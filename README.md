@@ -86,3 +86,43 @@ I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_c
 E (4297913) bridge_wifi: STA Disconnect to the AP
 ```
 
+# Loss of a root node   
+If the root node is lost for any reason, one of the leaf nodes is promoted to root node.   
+This is the logging of the root node at that time.   
+This node was in layer 2 until tick 91204, but was promoted to the root node from tick 95683 onwards.   
+```
+I (61204) local_control: System information, channel: 1, layer: 2, self mac: 08:3a:f2:50:de:5c, parent bssid: a4:cf:12:05:c6:35, parent rssi: -46, free heap: 180504
+I (71204) local_control: System information, channel: 1, layer: 2, self mac: 08:3a:f2:50:de:5c, parent bssid: a4:cf:12:05:c6:35, parent rssi: -47, free heap: 180504
+I (81204) local_control: System information, channel: 1, layer: 2, self mac: 08:3a:f2:50:de:5c, parent bssid: a4:cf:12:05:c6:35, parent rssi: -46, free heap: 180504
+I (91204) local_control: System information, channel: 1, layer: 2, self mac: 08:3a:f2:50:de:5c, parent bssid: a4:cf:12:05:c6:35, parent rssi: -56, free heap: 178808
+I (95683) wifi:bcn_timeout,ap_probe_send_start
+I (98186) wifi:ap_probe_send over, reset wifi status to disassoc
+I (98187) wifi:state: run -> init (0xc800)
+I (98189) wifi:pm stop, total sleep time: 0 us / 94021266 us
+
+I (98191) wifi:<ba-del>idx:0, tid:0
+I (98195) wifi:new:<1,0>, old:<1,1>, ap:<1,1>, sta:<1,1>, prof:1, snd_ch_cfg:0x0
+E (98207) [ESP_Mesh_Lite_Comm]: Disconnect reason : 200
+E (98801) local_control: <Software caused connection abort> TCP write
+W (99044) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+I (99047) [vendor_ie]: esp_wifi_connect return ESP_OK
+I (99049) [vendor_ie]: RTC store: temp_mesh_id:115; ssid:aterm-d5a4ee-g; bssid:00:00:00:00:00:00; crc:3383892968
+I (99057) [ESP_Mesh_Lite_Comm]: As the first inherited device, try to connect to the router
+I (99058) wifi:new:<1,1>, old:<1,0>, ap:<1,1>, sta:<1,0>, prof:1, snd_ch_cfg:0x0
+I (99074) wifi:state: init -> auth (0xb0)
+I (99080) wifi:state: auth -> assoc (0x0)
+I (99105) wifi:state: assoc -> run (0x10)
+I (99210) wifi:connected with aterm-d5a4ee-g, aid = 15, channel 1, BW20, bssid = f8:b7:97:36:de:52
+I (99211) wifi:security: WPA2-PSK, phy: bgn, rssi: -53
+I (99214) wifi:pm start, type: 1
+
+I (99295) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+I (100354) esp_netif_handlers: sta ip: 192.168.10.121, mask: 255.255.255.0, gw: 192.168.10.1
+I (100355) bridge_wifi: Connected with IP Address:192.168.10.121
+I (100359) [vendor_ie]: RTC store: temp_mesh_id:121; ssid:aterm-d5a4ee-g; bssid:00:00:00:00:00:00; crc:2665160230
+I (101143) wifi:<ba-add>idx:0 (ifx:0, f8:b7:97:36:de:52), tid:5, ssn:0, winSize:64
+I (101204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -55, free heap: 180284
+I (101247) wifi:<ba-add>idx:1 (ifx:0, f8:b7:97:36:de:52), tid:0, ssn:6, winSize:64
+I (111204) local_control: System information, channel: 1, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: f8:b7:97:36:de:52, parent rssi: -55, free heap: 180484
+```
+
