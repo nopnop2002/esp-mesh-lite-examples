@@ -74,18 +74,23 @@ esp-mesh-lite and BLE gateway application for routerless mesh networks.
 # Restructuring network topology   
 
 ### Loss of a leaf node   
-If communication from a leaf node to the root node is lost for a certain period of time, the root node will determine that the leaf node is lost.   
-Then, it will disconnect the leaf node from the MESH network.   
+If a leaf node is lost for any reason, the root node disconnects the leaf node from the MESH network.   
 This is the logging of the root node at that time.   
+The root node has two child nodes up to tick 481219.   
+From tick 486019 onwards, the root node has one child node.
 ```
-W (4296140) wifi:inactive timer: now=713bb last_rx_time=ee0e5bf3 diff=499c8, aid[2]3c:71:bf:9d:bd:00 leave
-I (4296164) wifi:station: 3c:71:bf:9d:bd:00 leave, AID = 2, reason = 4, bss_flags is 753779, bss:0x3ffd22dc
-I (4296165) wifi:new:<11,2>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
-E (4296171) bridge_wifi: STA Disconnect to the AP
-W (4297880) wifi:inactive timer: now=21a180 last_rx_time=ee2ea74b diff=49850, aid[1]c8:c9:a3:cf:10:c4 leave
-I (4297905) wifi:station: c8:c9:a3:cf:10:c4 leave, AID = 1, reason = 4, bss_flags is 753779, bss:0x3ffba868
-I (4297906) wifi:new:<11,0>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
-E (4297913) bridge_wifi: STA Disconnect to the AP
+I (481219) no_router: System information, channel: 11, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: 00:00:00:00:00:00, parent rssi: -120, free heap: 181260
+I (481219) no_router: Child mac: 24:0a:c4:c5:46:fc
+I (481219) no_router: Child mac: a4:cf:12:05:c6:34
+W (486019) wifi:inactive timer: now=1cec87a2 last_rx_time=b0346d1 diff=495d3, aid[2]a4:cf:12:05:c6:34 leave
+I (486049) wifi:station: a4:cf:12:05:c6:34 leave, AID = 2, reason = 4, bss_flags is 756851, bss:0x3ffbad54
+I (486049) wifi:new:<11,2>, old:<11,2>, ap:<11,2>, sta:<0,0>, prof:11, snd_ch_cfg:0x0
+I (486049) wifi:<ba-del>idx:3, tid:0
+E (486059) bridge_wifi: STA Disconnect to the AP
+I (491219) no_router: System information, channel: 11, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: 00:00:00:00:00:00, parent rssi: -120, free heap: 183456
+I (491219) no_router: Child mac: 24:0a:c4:c5:46:fc
+I (501219) no_router: System information, channel: 11, layer: 1, self mac: 08:3a:f2:50:de:5c, parent bssid: 00:00:00:00:00:00, parent rssi: -120, free heap: 183456
+I (501219) no_router: Child mac: 24:0a:c4:c5:46:fc
 ```
 
 ### Loss of a root node   
