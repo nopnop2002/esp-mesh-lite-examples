@@ -66,8 +66,8 @@ static void print_system_info_timercb(TimerHandle_t timer)
 	if (esp_mesh_lite_get_level() > 1) {
 		esp_wifi_sta_get_ap_info(&ap_info);
 	}
-	esp_wifi_get_mac(ESP_IF_WIFI_AP, ap_mac);
-	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
+	esp_wifi_get_mac(WIFI_IF_AP, ap_mac);
+	esp_wifi_get_mac(WIFI_IF_STA, sta_mac);
 	ESP_LOGI(TAG, "ap_mac=[" MACSTR "] sta_mac=[" MACSTR "]", MAC2STR(ap_mac), MAC2STR(sta_mac));
 	esp_wifi_ap_get_sta_list(&wifi_sta_list);
 	esp_wifi_get_channel(&primary, &second);
