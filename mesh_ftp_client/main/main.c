@@ -60,8 +60,8 @@ static void print_system_info_timercb(TimerHandle_t timer)
 	wifi_sta_list_t wifi_sta_list	= {0x0};
 
 	esp_wifi_sta_get_ap_info(&ap_info);
-	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
-	esp_wifi_get_mac(ESP_IF_WIFI_AP, ap_mac);
+	esp_wifi_get_mac(WIFI_IF_STA, sta_mac);
+	esp_wifi_get_mac(WIFI_IF_AP, ap_mac);
 	esp_wifi_ap_get_sta_list(&wifi_sta_list);
 	esp_wifi_get_channel(&primary, &second);
 
