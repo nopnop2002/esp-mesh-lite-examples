@@ -161,7 +161,7 @@ void mqtt_pub(void *pvParameters)
 
 	// Get station mac address
 	uint8_t sta_mac[6] = {0};
-	esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
+	esp_wifi_get_mac(WIFI_IF_STA, sta_mac);
 
 	while(1) {
 		EventBits_t EventBits = xEventGroupGetBits(mqtt_status_event_group);
