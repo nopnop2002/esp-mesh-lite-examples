@@ -31,7 +31,7 @@ menu "Example Configuration"
 
 	config ENCRYPTION
 		bool "Enable AES encryption"
-		default false
+		default n
 		help
 			Enable AES encryption.
 
